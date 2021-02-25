@@ -31,11 +31,12 @@ defmodule Fob.MixProject do
       description: description(),
       source_url: @source_url,
       name: "Fob",
-      docs: docs()
+      docs: docs(),
+      aliases: aliases()
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/fixtures"]
+  defp elixirc_paths(env) when env in [:dev, :test], do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   def application do
@@ -44,10 +45,13 @@ defmodule Fob.MixProject do
 
   defp deps do
     [
+      {:ecto, "~> 3.0"},
       # docs
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       # test
-      {:bless, "~> 1.0"},
+      {:ecto_sql, "~> 3.0", only: [:dev, :test]},
+      {:postgrex, ">= 0.0.0", only: [:dev, :test]},
+      {:bless, "~> 1.0", only: :test},
       {:convene, "~> 0.2", organization: "cuatro", only: [:dev, :test]},
       {:excoveralls, "~> 0.7", only: :test}
     ]
@@ -57,7 +61,7 @@ defmodule Fob.MixProject do
     [
       name: "fob",
       files: ~w(lib .formatter.exs mix.exs README.md .version),
-      licenses: [],
+      licenses: ["Apache-2.0"],
       organization: "cuatro",
       links: %{
         "GitHub" => @source_url,
@@ -82,6 +86,14 @@ defmodule Fob.MixProject do
       groups_for_extras: [
         Guides: Path.wildcard("guides/*.md")
       ]
+    ]
+  end
+
+  defp aliases do
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      test: ["ecto.reset --quiet", "ecto.migrate", "test"]
     ]
   end
 end
