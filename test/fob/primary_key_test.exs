@@ -19,6 +19,7 @@ defmodule Fob.PrimaryKeyTest do
     |> Multi.insert_all(:seeds, c.schema, records)
     |> c.repo.transaction()
 
+    :ok
   end
 
   test "when sorting ascending, we can get each page", c do

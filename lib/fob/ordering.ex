@@ -29,18 +29,11 @@ defmodule Fob.Ordering do
          {direction, {{:., _, [{:&, _, [table]}, column]}, _, _}}
        ) do
     %__MODULE__{
-      direction: coalesce_direction(direction),
+      direction: direction,
       column: column,
       table: table
     }
   end
-
-  defp coalesce_direction(:asc), do: :asc
-  defp coalesce_direction(:asc_nulls_last), do: :asc
-  defp coalesce_direction(:asc_nulls_first), do: :asc
-  defp coalesce_direction(:desc), do: :desc
-  defp coalesce_direction(:desc_nulls_last), do: :desc
-  defp coalesce_direction(:desc_nulls_first), do: :desc
 
   @spec columns(%Query{}) :: [atom()]
   def columns(%Query{} = query) do
