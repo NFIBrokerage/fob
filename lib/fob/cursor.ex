@@ -39,10 +39,10 @@ defmodule Fob.Cursor do
 
   defp do_split(cursor, count, acc)
 
-  defp do_split(cursor, 0, acc), do: {List.flatten(acc), cursor}
+  defp do_split(cursor, 0, acc), do: {acc |> finalize_acc(), cursor}
 
   defp do_split(%__MODULE__{page_breaks: :halt} = cursor, _count, acc) do
-    {List.flatten(acc), cursor}
+    {acc |> finalize_acc(), cursor}
   end
 
   defp do_split(cursor, count, acc) do
@@ -66,4 +66,6 @@ defmodule Fob.Cursor do
 
     %__MODULE__{cursor | page_breaks: page_breaks}
   end
+
+  defp finalize_acc(acc), do: acc |> Enum.reverse() |> List.flatten()
 end
