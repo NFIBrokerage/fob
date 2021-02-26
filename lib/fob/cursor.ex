@@ -18,10 +18,7 @@ defmodule Fob.Cursor do
 
   @spec new(Ecto.Queryable.t(), Ecto.Repo.t(), Fob.page_breaks(), pos_integer()) ::
           t()
-  def new(queryable, repo, page_breaks \\ [], page_size \\ 45)
-
-  def new(queryable, repo, page_breaks, page_size)
-      when is_list(page_breaks) and is_integer(page_size) and page_size > 0 do
+  def new(queryable, repo, page_breaks, page_size) when is_integer(page_size) and page_size > 0 do
     %__MODULE__{
       query: Ecto.Queryable.to_query(queryable),
       repo: repo,
@@ -29,6 +26,9 @@ defmodule Fob.Cursor do
       page_size: page_size
     }
   end
+
+  @spec next(cursor :: t()) :: {records :: [map()], cursor :: t()}
+  def next(%__MODULE__{} = cursor), do: split(cursor, 1)
 
   @spec split(cursor :: t(), count :: non_neg_integer()) ::
           {records :: [map()], cursor :: t()}
@@ -60,12 +60,8 @@ defmodule Fob.Cursor do
     {records, update_page_breaks(cursor, List.last(records))}
   end
 
-  defp update_page_breaks(%__MODULE__{} = cursor, nil) do
-    %__MODULE__{cursor | page_breaks: :halt}
-  end
-
-  defp update_page_breaks(%__MODULE__{} = cursor, record) when is_map(record) do
-    page_breaks = Fob.page_breaks(cursor.query, record)
+  defp update_page_breaks(%__MODULE__{} = cursor, record) do
+    page_breaks = Fob.page_breaks(cursor.query, record) || :halt
 
     %__MODULE__{cursor | page_breaks: page_breaks}
   end
