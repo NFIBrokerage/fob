@@ -15,9 +15,10 @@ defmodule Fob.LeftJoinTest do
   setup c do
     trunk_records = for n <- 1..20, do: %{id: n - 1, child: 20 - n}
 
-    child_records = for n <- 1..20 do
-      %{id: n - 1, name: String.pad_trailing("", n, "a")}
-    end
+    child_records =
+      for n <- 1..20 do
+        %{id: n - 1, name: String.pad_trailing("", n, "a")}
+      end
 
     Multi.new()
     |> Multi.insert_all(:trunk_seeds, c.trunk_schema, trunk_records)
@@ -28,13 +29,20 @@ defmodule Fob.LeftJoinTest do
   end
 
   test """
-  we can sort _ascending_ by a left-joined field,
-  even if renamed in the select clause
-  """, c do
+       we can sort _ascending_ by a left-joined field,
+       even if renamed in the select clause
+       """,
+       c do
     child_schema = c.child_schema
+
     cursor =
       Cursor.new(
-        from(t in c.trunk_schema, left_join: c in ^child_schema, on: t.child == c.id, select: %{t | child_name: c.name}, order_by: [asc: c.name, desc: t.id]),
+        from(t in c.trunk_schema,
+          left_join: c in ^child_schema,
+          on: t.child == c.id,
+          select: %{t | child_name: c.name},
+          order_by: [asc: c.name, desc: t.id]
+        ),
         c.repo,
         nil,
         5
@@ -58,13 +66,20 @@ defmodule Fob.LeftJoinTest do
   end
 
   test """
-  we can sort _descending_ by a left-joined field,
-  even if renamed in the select clause
-  """, c do
+       we can sort _descending_ by a left-joined field,
+       even if renamed in the select clause
+       """,
+       c do
     child_schema = c.child_schema
+
     cursor =
       Cursor.new(
-        from(t in c.trunk_schema, left_join: c in ^child_schema, on: t.child == c.id, select: %{t | child_name: c.name}, order_by: [desc: c.name, desc: t.id]),
+        from(t in c.trunk_schema,
+          left_join: c in ^child_schema,
+          on: t.child == c.id,
+          select: %{t | child_name: c.name},
+          order_by: [desc: c.name, desc: t.id]
+        ),
         c.repo,
         nil,
         5

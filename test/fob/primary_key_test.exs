@@ -25,7 +25,7 @@ defmodule Fob.PrimaryKeyTest do
   test "when sorting ascending, we can get each page", c do
     cursor =
       Cursor.new(
-        order_by(c.schema, [asc: :id]),
+        order_by(c.schema, asc: :id),
         c.repo,
         _initial_page_breaks = nil,
         5
@@ -48,8 +48,7 @@ defmodule Fob.PrimaryKeyTest do
   end
 
   test "when sorting descending, the records are in reverse order", c do
-    cursor =
-      Cursor.new(order_by(c.schema, [desc: :id]), c.repo, nil, 10)
+    cursor = Cursor.new(order_by(c.schema, desc: :id), c.repo, nil, 10)
 
     assert {records, cursor} = Cursor.next(cursor)
     assert Enum.map(records, & &1.id) == Enum.to_list(20..11)

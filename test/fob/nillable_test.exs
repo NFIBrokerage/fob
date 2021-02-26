@@ -12,7 +12,6 @@ defmodule Fob.NillableTest do
   column).
   """
 
-
   alias Fob.Cursor
   alias Ecto.Multi
 
@@ -54,10 +53,9 @@ defmodule Fob.NillableTest do
   end
 
   test "we can get all pages when sorting ascending (default)", c do
-
     cursor =
       Cursor.new(
-        order_by(c.schema, [asc: :date, asc: :id]),
+        order_by(c.schema, asc: :date, asc: :id),
         c.repo,
         nil,
         5
@@ -66,12 +64,21 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(0..4)
-    assert records |> Enum.map(& &1.date) == Date.range(~D[2020-02-12], ~D[2020-02-16]) |> Enum.to_list()
+
+    assert records |> Enum.map(& &1.date) ==
+             Date.range(~D[2020-02-12], ~D[2020-02-16]) |> Enum.to_list()
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [5, 6, 7, 8, 9]
-    assert records |> Enum.map(& &1.date) == [~D[2020-02-17], nil, nil, nil, nil]
+
+    assert records |> Enum.map(& &1.date) == [
+             ~D[2020-02-17],
+             nil,
+             nil,
+             nil,
+             nil
+           ]
 
     {records, cursor} = Cursor.next(cursor)
 
@@ -84,7 +91,7 @@ defmodule Fob.NillableTest do
   test "we can get all pages when sorting ascending (nulls last)", c do
     cursor =
       Cursor.new(
-        order_by(c.schema, [asc_nulls_last: :date, asc: :id]),
+        order_by(c.schema, asc_nulls_last: :date, asc: :id),
         c.repo,
         nil,
         5
@@ -93,12 +100,21 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(0..4)
-    assert records |> Enum.map(& &1.date) == Date.range(~D[2020-02-12], ~D[2020-02-16]) |> Enum.to_list()
+
+    assert records |> Enum.map(& &1.date) ==
+             Date.range(~D[2020-02-12], ~D[2020-02-16]) |> Enum.to_list()
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(5..9)
-    assert records |> Enum.map(& &1.date) == [~D[2020-02-17], nil, nil, nil, nil]
+
+    assert records |> Enum.map(& &1.date) == [
+             ~D[2020-02-17],
+             nil,
+             nil,
+             nil,
+             nil
+           ]
 
     {records, cursor} = Cursor.next(cursor)
 
@@ -111,7 +127,7 @@ defmodule Fob.NillableTest do
   test "we can get all pages when sorting ascending (nulls first)", c do
     cursor =
       Cursor.new(
-        order_by(c.schema, [asc_nulls_first: :date, asc: :id]),
+        order_by(c.schema, asc_nulls_first: :date, asc: :id),
         c.repo,
         nil,
         5
@@ -125,12 +141,21 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [11, 12, 13, 14, 0]
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, ~D[2020-02-12]]
+
+    assert records |> Enum.map(& &1.date) == [
+             nil,
+             nil,
+             nil,
+             nil,
+             ~D[2020-02-12]
+           ]
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(1..5)
-    assert records |> Enum.map(& &1.date) == Date.range(~D[2020-02-13], ~D[2020-02-17]) |> Enum.to_list()
+
+    assert records |> Enum.map(& &1.date) ==
+             Date.range(~D[2020-02-13], ~D[2020-02-17]) |> Enum.to_list()
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -138,7 +163,7 @@ defmodule Fob.NillableTest do
   test "we can get all pages when sorting descending (default)", c do
     cursor =
       Cursor.new(
-        order_by(c.schema, [desc: :date, desc: :id]),
+        order_by(c.schema, desc: :date, desc: :id),
         c.repo,
         nil,
         5
@@ -152,12 +177,21 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [9, 8, 7, 6, 5]
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, ~D[2020-02-17]]
+
+    assert records |> Enum.map(& &1.date) == [
+             nil,
+             nil,
+             nil,
+             nil,
+             ~D[2020-02-17]
+           ]
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(4..0)
-    assert records |> Enum.map(& &1.date) == Date.range(~D[2020-02-16], ~D[2020-02-12]) |> Enum.to_list()
+
+    assert records |> Enum.map(& &1.date) ==
+             Date.range(~D[2020-02-16], ~D[2020-02-12]) |> Enum.to_list()
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -165,7 +199,7 @@ defmodule Fob.NillableTest do
   test "we can get all pages when sorting descending (nulls first)", c do
     cursor =
       Cursor.new(
-        order_by(c.schema, [desc_nulls_first: :date, desc: :id]),
+        order_by(c.schema, desc_nulls_first: :date, desc: :id),
         c.repo,
         nil,
         5
@@ -179,12 +213,21 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [9, 8, 7, 6, 5]
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, ~D[2020-02-17]]
+
+    assert records |> Enum.map(& &1.date) == [
+             nil,
+             nil,
+             nil,
+             nil,
+             ~D[2020-02-17]
+           ]
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(4..0)
-    assert records |> Enum.map(& &1.date) == Date.range(~D[2020-02-16], ~D[2020-02-12]) |> Enum.to_list()
+
+    assert records |> Enum.map(& &1.date) ==
+             Date.range(~D[2020-02-16], ~D[2020-02-12]) |> Enum.to_list()
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -192,7 +235,7 @@ defmodule Fob.NillableTest do
   test "we can get all pages when sorting descending (nulls last)", c do
     cursor =
       Cursor.new(
-        order_by(c.schema, [desc_nulls_last: :date, desc: :id]),
+        order_by(c.schema, desc_nulls_last: :date, desc: :id),
         c.repo,
         nil,
         5
@@ -201,12 +244,21 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(5..1)
-    assert records |> Enum.map(& &1.date) == Date.range(~D[2020-02-17], ~D[2020-02-13]) |> Enum.to_list()
+
+    assert records |> Enum.map(& &1.date) ==
+             Date.range(~D[2020-02-17], ~D[2020-02-13]) |> Enum.to_list()
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [0, 14, 13, 12, 11]
-    assert records |> Enum.map(& &1.date) == [~D[2020-02-12], nil, nil, nil, nil]
+
+    assert records |> Enum.map(& &1.date) == [
+             ~D[2020-02-12],
+             nil,
+             nil,
+             nil,
+             nil
+           ]
 
     {records, cursor} = Cursor.next(cursor)
 

@@ -8,10 +8,12 @@ defmodule Fob do
   import Ecto.Query
 
   @doc since: "0.1.0"
-  @spec next_page(Ecto.Queryable.t(), [PageBreak.t()], pos_integer()) :: Ecto.Query.t()
+  @spec next_page(Ecto.Queryable.t(), [PageBreak.t()], pos_integer()) ::
+          Ecto.Query.t()
   def next_page(queryable, page_breaks, page_size)
 
-  def next_page(queryable, page_breaks, page_size) when page_breaks == nil or page_breaks == [] do
+  def next_page(queryable, page_breaks, page_size)
+      when page_breaks == nil or page_breaks == [] do
     limit(queryable, ^page_size)
   end
 
@@ -44,42 +46,133 @@ defmodule Fob do
 
   # --- value is nil
 
-  defp apply_keyset_comparison(%PageBreak{direction: direction, column: column, table: table, value: nil}, acc) when direction in [:asc, :asc_nulls_last] do
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: direction,
+           column: column,
+           table: table,
+           value: nil
+         },
+         acc
+       )
+       when direction in [:asc, :asc_nulls_last] do
     dynamic([{t, table}], field(t, ^column) |> is_nil() and ^acc)
   end
 
-  defp apply_keyset_comparison(%PageBreak{direction: :asc_nulls_first, column: column, table: table, value: nil}, acc) do
-    dynamic([{t, table}], field(t, ^column) > fragment("'-infinity'") or (field(t, ^column) |> is_nil() and ^acc))
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: :asc_nulls_first,
+           column: column,
+           table: table,
+           value: nil
+         },
+         acc
+       ) do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) > fragment("'-infinity'") or
+        (field(t, ^column) |> is_nil() and ^acc)
+    )
   end
 
-  defp apply_keyset_comparison(%PageBreak{direction: direction, column: column, table: table, value: nil}, acc) when direction in [:desc, :desc_nulls_first] do
-    dynamic([{t, table}], field(t, ^column) < fragment("'infinity'") or (field(t, ^column) |> is_nil() and ^acc))
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: direction,
+           column: column,
+           table: table,
+           value: nil
+         },
+         acc
+       )
+       when direction in [:desc, :desc_nulls_first] do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) < fragment("'infinity'") or
+        (field(t, ^column) |> is_nil() and ^acc)
+    )
   end
 
-  defp apply_keyset_comparison(%PageBreak{direction: :desc_nulls_last, column: column, table: table, value: nil}, acc) do
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: :desc_nulls_last,
+           column: column,
+           table: table,
+           value: nil
+         },
+         acc
+       ) do
     dynamic([{t, table}], field(t, ^column) |> is_nil() and ^acc)
   end
 
   # --- value is non-nil
 
-  defp apply_keyset_comparison(%PageBreak{direction: direction, column: column, table: table, value: value}, acc) when direction in [:asc, :asc_nulls_last] do
-    dynamic([{t, table}], field(t, ^column) > ^value or field(t, ^column) |> is_nil() or (field(t, ^column) == ^value and ^acc))
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: direction,
+           column: column,
+           table: table,
+           value: value
+         },
+         acc
+       )
+       when direction in [:asc, :asc_nulls_last] do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) > ^value or field(t, ^column) |> is_nil() or
+        (field(t, ^column) == ^value and ^acc)
+    )
   end
 
-  defp apply_keyset_comparison(%PageBreak{direction: :asc_nulls_first, column: column, table: table, value: value}, acc) do
-    dynamic([{t, table}], field(t, ^column) > ^value or (field(t, ^column) == ^value and ^acc))
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: :asc_nulls_first,
+           column: column,
+           table: table,
+           value: value
+         },
+         acc
+       ) do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) > ^value or (field(t, ^column) == ^value and ^acc)
+    )
   end
 
-  defp apply_keyset_comparison(%PageBreak{direction: direction, column: column, table: table, value: value}, acc) when direction in [:desc, :desc_nulls_first] do
-    dynamic([{t, table}], field(t, ^column) < ^value or (field(t, ^column) == ^value and ^acc))
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: direction,
+           column: column,
+           table: table,
+           value: value
+         },
+         acc
+       )
+       when direction in [:desc, :desc_nulls_first] do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) < ^value or (field(t, ^column) == ^value and ^acc)
+    )
   end
 
-  defp apply_keyset_comparison(%PageBreak{direction: :desc_nulls_last, column: column, table: table, value: value}, acc) do
-    dynamic([{t, table}], field(t, ^column) < ^value or field(t, ^column) |> is_nil() or (field(t, ^column) == ^value and ^acc))
+  defp apply_keyset_comparison(
+         %PageBreak{
+           direction: :desc_nulls_last,
+           column: column,
+           table: table,
+           value: value
+         },
+         acc
+       ) do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) < ^value or field(t, ^column) |> is_nil() or
+        (field(t, ^column) == ^value and ^acc)
+    )
   end
 
   @doc since: "0.1.0"
-  @spec page_breaks(Ecto.Queryable.t(), record :: map() | nil) :: [PageBreak.t()] | nil
+  @spec page_breaks(Ecto.Queryable.t(), record :: map() | nil) ::
+          [PageBreak.t()] | nil
   def page_breaks(_queryable, nil), do: nil
 
   def page_breaks(queryable, record) do

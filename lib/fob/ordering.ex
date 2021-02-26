@@ -7,10 +7,10 @@ defmodule Fob.Ordering do
   alias Ecto.Query
 
   @type t :: %__MODULE__{
-    table: non_neg_integer(),
-    column: atom(),
-    direction: :asc | :desc
-  }
+          table: non_neg_integer(),
+          column: atom(),
+          direction: :asc | :desc
+        }
 
   defstruct ~w[table column direction]a
 

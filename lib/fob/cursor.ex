@@ -18,7 +18,8 @@ defmodule Fob.Cursor do
 
   @spec new(Ecto.Queryable.t(), Ecto.Repo.t(), Fob.page_breaks(), pos_integer()) ::
           t()
-  def new(queryable, repo, page_breaks, page_size) when is_integer(page_size) and page_size > 0 do
+  def new(queryable, repo, page_breaks, page_size)
+      when is_integer(page_size) and page_size > 0 do
     %__MODULE__{
       query: Ecto.Queryable.to_query(queryable),
       repo: repo,
