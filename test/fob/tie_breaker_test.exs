@@ -114,6 +114,28 @@ defmodule Fob.TieBreakerTest do
       4,
       9,
       8
+    ],
+    [desc_nulls_first: :name, desc_nulls_first: :date, desc: :id] => [
+      10,
+      9,
+      8,
+      19,
+      18,
+      17,
+      16,
+      15,
+      14,
+      13,
+      12,
+      11,
+      7,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1,
+      0
     ]
   }
 
