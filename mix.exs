@@ -52,7 +52,7 @@ defmodule Fob.MixProject do
       {:ecto_sql, "~> 3.0", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0", only: [:dev, :test]},
       {:bless, "~> 1.0", only: :test},
-      {:convene, "~> 0.2", organization: "cuatro", only: [:dev, :test]},
+      {:credo, "~> 1.0", only: [:dev, :test]},
       {:excoveralls, "~> 0.7", only: :test}
     ]
   end
@@ -62,7 +62,6 @@ defmodule Fob.MixProject do
       name: "fob",
       files: ~w(lib .formatter.exs mix.exs README.md .version),
       licenses: ["Apache-2.0"],
-      organization: "cuatro",
       links: %{
         "GitHub" => @source_url,
         "Changelog" => @source_url <> "/blobs/main/CHANGELOG.md"
@@ -71,7 +70,7 @@ defmodule Fob.MixProject do
   end
 
   defp description do
-    "A keyset pagination library for Ecto queries"
+    "A minimalistic keyset pagination library for Ecto queries"
   end
 
   defp docs do
