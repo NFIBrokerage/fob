@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fob
+  description: Keyset pagination tools for Ecto Queries
+spec:
+  type: library
+  lifecycle: experimental
+  owner: team-baemax
+  system: read-models
+  tags:
+  - ecto
+  - pagination
+  - cursor
+  - keyset
+  - queries
