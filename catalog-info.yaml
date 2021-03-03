@@ -3,6 +3,10 @@ kind: Component
 metadata:
   name: fob
   description: Keyset pagination tools for Ecto Queries
+  annotations:
+    github.com/project-slug: NFIBrokerage/fob
+    backstage.io/source-ref: https://github.com/NFIBrokerage/fob
+    backstage.io/github-actions-id: https://github.com/NFIBrokerage/fob
   tags:
   - ecto
   - pagination
