@@ -12,6 +12,8 @@ defmodule Fob.PageBreak do
   # :asc == :asc_nulls_last
   # :desc == :desc_nulls_first
 
+  @type t :: %__MODULE__{}
+
   defstruct ~w[column value table direction]a
 
   def add_query_info(nil, _), do: nil
@@ -76,4 +78,36 @@ defmodule Fob.PageBreak do
   defp _compare(_a, nil, direction)
        when direction in ~w[asc asc_nulls_last desc_nulls_last]a,
        do: :lt
+
+  @doc """
+  Expands the n-dimensional space occupied by a bound of page-breaks
+
+  If one holds on to the page-breaks from the `start` and `stop` of a dataset
+  (with `start` being the first record returned and `stop` being the last
+  record of the most recently requested page; i.e. the cursor), they have
+  the boundaries of the page-break-space for the `query`. It can be useful to
+  be able to expand this space in the case of row insertions into the database.
+  If an insertion comes in, one must compute its page-break values and compare
+  those to the held `start` and `stop` page-break values.
+
+  This function performs that comparison and returns a tuple of the new
+  `start` and `stop`, where `proposed` could either replace the `start` or
+  `stop`.
+  """
+  @doc since: "0.3.0"
+  @spec expand_space(
+          start :: [t()],
+          stop :: [t()],
+          proposed :: [t()],
+          Ecto.Query.t()
+        ) :: {new_start :: [t()], new_stop :: [t()]}
+  def expand_space(start, stop, proposed, query) do
+    new_start =
+      if compare(proposed, start, query) == :lt, do: proposed, else: start
+
+    new_stop =
+      if compare(proposed, stop, query) == :gt, do: proposed, else: stop
+
+    {new_start, new_stop}
+  end
 end

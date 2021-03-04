@@ -6,6 +6,13 @@ The format is based on [Keep a
 Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 - 2021-03-04
+
+### Added
+
+- Added a `Fob.PageBreak.expand_space/4` function for expanding the bounds of
+  a page-break space.
+
 ## 0.2.0 - 2021-03-04
 
 ### Added
