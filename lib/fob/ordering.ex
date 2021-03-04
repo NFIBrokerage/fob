@@ -59,4 +59,13 @@ defmodule Fob.Ordering do
   end
 
   def selection_mapping(%Query{}), do: %{}
+
+  @doc since: "0.2.0"
+  @spec opposite(atom()) :: atom()
+  def opposite(:asc), do: :desc
+  def opposite(:asc_nulls_first), do: :desc_nulls_last
+  def opposite(:asc_nulls_last), do: :desc_nulls_first
+  def opposite(:desc), do: :asc
+  def opposite(:desc_nulls_first), do: :asc_nulls_last
+  def opposite(:desc_nulls_last), do: :asc_nulls_first
 end

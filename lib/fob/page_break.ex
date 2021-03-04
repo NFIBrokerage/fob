@@ -8,6 +8,8 @@ defmodule Fob.PageBreak do
 
   defstruct ~w[column value table direction]a
 
+  def add_query_info(nil, _), do: nil
+
   def add_query_info(page_breaks, %Ecto.Query{} = query)
       when is_list(page_breaks) do
     ordering_config = Ordering.config(query)
