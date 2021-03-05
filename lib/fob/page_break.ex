@@ -36,6 +36,9 @@ defmodule Fob.PageBreak do
     compare(add_query_info(a, query), add_query_info(b, query))
   end
 
+  def compare(nil, _, _), do: :lt
+  def compare(_, nil, _), do: :gt
+
   def compare(a, b)
 
   def compare(a, b) when is_list(a) and is_list(b) and length(a) == length(b) do
@@ -51,6 +54,9 @@ defmodule Fob.PageBreak do
       when is_atom(direction) and direction != nil do
     _compare(a, b, direction)
   end
+
+  def compare(nil, _), do: :lt
+  def compare(_, nil), do: :gt
 
   defp _compare(a, b, direction)
 
