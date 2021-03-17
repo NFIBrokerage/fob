@@ -11,13 +11,17 @@ defmodule Fob do
   @descending ~w[desc desc_nulls_first desc_nulls_last]a
 
   @doc since: "0.1.0"
-  @spec next_page(Ecto.Queryable.t(), [PageBreak.t()], pos_integer()) ::
+  @spec next_page(
+          Ecto.Queryable.t(),
+          [PageBreak.t()],
+          pos_integer() | :infinity
+        ) ::
           Ecto.Query.t()
   def next_page(queryable, page_breaks, page_size)
 
   def next_page(queryable, page_breaks, page_size)
       when page_breaks == nil or page_breaks == [] do
-    limit(queryable, ^page_size)
+    apply_limit(queryable, page_size)
   end
 
   def next_page(queryable, [_ | _] = page_breaks, page_size) do
@@ -26,7 +30,13 @@ defmodule Fob do
 
     query
     |> apply_keyset_comparison(page_breaks, :strict)
-    |> limit(^page_size)
+    |> apply_limit(page_size)
+  end
+
+  defp apply_limit(queryable, :infinity), do: queryable
+
+  defp apply_limit(queryable, page_size) do
+    limit(queryable, ^page_size)
   end
 
   defp apply_keyset_comparison(
