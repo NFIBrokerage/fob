@@ -13,6 +13,7 @@ about the queries passed to it, such as:
 - each query must be ordered by at least the schema's primary key
 - the primary keys is always the final ordering condition
 - associations are untested and probably do not work
+    - (left) joins are known to work though
 
 ## Usage
 
