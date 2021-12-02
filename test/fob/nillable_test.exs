@@ -22,27 +22,27 @@ defmodule Fob.NillableTest do
   setup c do
     records =
       [
-        ~D[2020-02-12],
-        ~D[2020-02-13],
-        ~D[2020-02-14],
-        ~D[2020-02-15],
-        ~D[2020-02-16],
+        {~D[2020-02-12], 1},
+        {~D[2020-02-13], 2},
+        {~D[2020-02-14], 3},
+        {~D[2020-02-15], 4},
+        {~D[2020-02-16], 5},
         # ---
-        ~D[2020-02-17],
-        nil,
-        nil,
-        nil,
-        nil,
+        {~D[2020-02-17], 6},
+        {nil, nil},
+        {nil, nil},
+        {nil, nil},
+        {nil, nil},
         # ---
-        nil,
-        nil,
-        nil,
-        nil,
-        nil
+        {nil, nil},
+        {nil, nil},
+        {nil, nil},
+        {nil, nil},
+        {nil, nil}
       ]
       |> Enum.with_index()
-      |> Enum.map(fn {date, index} ->
-        %{id: index, date: date}
+      |> Enum.map(fn {{date, count}, index} ->
+        %{id: index, date: date, count: count}
       end)
 
     Multi.new()
@@ -52,7 +52,7 @@ defmodule Fob.NillableTest do
     :ok
   end
 
-  test "we can get all pages when sorting ascending (default)", c do
+  test "we can get all pages when sorting ascending (default) by date", c do
     cursor =
       Cursor.new(
         order_by(c.schema, asc: :date, asc: :id),
@@ -86,6 +86,30 @@ defmodule Fob.NillableTest do
     assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
 
     {[], _cursor} = Cursor.next(cursor)
+  end
+
+  test "we can get all pages when sorting descending by integer type", c do
+    cursor =
+      Cursor.new(
+        order_by(c.schema, desc: :count, asc: :id),
+        c.repo,
+        nil,
+        5
+      )
+
+    {records, cursor} = Cursor.next(cursor)
+
+    assert records |> Enum.map(& &1.id) == Enum.to_list(6..10)
+
+    {records, _cursor} = Cursor.next(cursor)
+
+    assert records |> Enum.map(& &1.id) == Enum.to_list(5..1)
+
+    # {records, cursor} = Cursor.next(cursor)
+
+    # assert records |> Enum.map(& &1.id) == [10, 11, 12, 13, 14]
+
+    # {[], _cursor} = Cursor.next(cursor)
   end
 
   test "we can get all pages when sorting ascending (nulls last)", c do
