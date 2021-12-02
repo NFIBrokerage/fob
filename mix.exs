@@ -26,7 +26,7 @@ defmodule Fob.MixProject do
         bless: :test,
         test: :test
       ],
-      test_coverage: [tool: ExCoveralls],
+      test_coverage: [tool: Chaps],
       package: package(),
       description: description(),
       source_url: @source_url,
@@ -51,9 +51,9 @@ defmodule Fob.MixProject do
       # test
       {:ecto_sql, "~> 3.0", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0", only: [:dev, :test]},
-      {:bless, "~> 1.0", only: :test},
+      {:bless, "~> 1.2", only: :test},
       {:credo, "~> 1.0", only: [:dev, :test]},
-      {:excoveralls, "~> 0.7", only: :test}
+      {:chaps, "~> 0.17", only: :test}
     ]
   end
 

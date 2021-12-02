@@ -41,9 +41,13 @@ defmodule Fob.Cursor do
 
   defp do_split(cursor, 0, acc), do: {acc |> finalize_acc(), cursor}
 
+  # YARD figure out how to test this
+  # chaps-ignore-start
   defp do_split(%__MODULE__{page_breaks: :halt} = cursor, _count, acc) do
     {acc |> finalize_acc(), cursor}
   end
+
+  # chaps-ignore-stop
 
   defp do_split(cursor, count, acc) do
     {records, new_cursor} = source(cursor)
