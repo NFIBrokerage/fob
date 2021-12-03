@@ -91,7 +91,7 @@ defmodule Fob do
        when direction in [:desc, :desc_nulls_first, :asc_nulls_first] do
     dynamic(
       [{t, table}],
-      is_nil(field(t, ^column)) == false or
+      not is_nil(field(t, ^column)) or
         (field(t, ^column) |> is_nil() and ^acc)
     )
   end
