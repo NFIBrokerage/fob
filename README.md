@@ -7,8 +7,6 @@ A minimalistic keyset pagination library for Ecto queries
 **N.B.**: you probably don't want to use Fob. Fob makes a number of assumptions
 about the queries passed to it, such as:
 
-- they'll be run against a modern PostgreSQL database
-    - fob uses the `-infinity` and `infinity` features of PostgreSQL
 - each schema will have only one primary key
 - each query must be ordered by at least the schema's primary key
 - the primary keys is always the final ordering condition
