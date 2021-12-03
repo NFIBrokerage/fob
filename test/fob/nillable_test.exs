@@ -100,16 +100,46 @@ defmodule Fob.NillableTest do
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == Enum.to_list(6..10)
+    assert records |> Enum.map(& &1.count) == repeat(nil, 5)
 
-    {records, _cursor} = Cursor.next(cursor)
+    {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(5..1)
+    assert records |> Enum.map(& &1.id) == [11, 12, 13, 14, 5]
+    assert records |> Enum.map(& &1.count) == repeat(nil, 4) ++ [6]
 
-    # {records, cursor} = Cursor.next(cursor)
+    {records, cursor} = Cursor.next(cursor)
 
-    # assert records |> Enum.map(& &1.id) == [10, 11, 12, 13, 14]
+    assert records |> Enum.map(& &1.id) == Enum.to_list(4..0)
+    assert records |> Enum.map(& &1.count) == Enum.to_list(5..1)
 
-    # {[], _cursor} = Cursor.next(cursor)
+    {[], _cursor} = Cursor.next(cursor)
+  end
+
+  test "we can get all pages when sorting ascending by integer type", c do
+    cursor =
+      Cursor.new(
+        order_by(c.schema, asc: :count, asc: :id),
+        c.repo,
+        nil,
+        5
+      )
+
+    {records, cursor} = Cursor.next(cursor)
+
+    assert records |> Enum.map(& &1.count) == Enum.to_list(1..5)
+    assert records |> Enum.map(& &1.id) == Enum.to_list(0..4)
+
+    {records, cursor} = Cursor.next(cursor)
+
+    assert records |> Enum.map(& &1.count) == [6 | repeat(nil, 4)]
+    assert records |> Enum.map(& &1.id) == Enum.to_list(5..9)
+
+    {records, cursor} = Cursor.next(cursor)
+
+    assert records |> Enum.map(& &1.count) == repeat(nil, 5)
+    assert records |> Enum.map(& &1.id) == Enum.to_list(10..14)
+
+    {[], _cursor} = Cursor.next(cursor)
   end
 
   test "we can get all pages when sorting ascending (nulls last)", c do
@@ -291,4 +321,6 @@ defmodule Fob.NillableTest do
 
     {[], _cursor} = Cursor.next(cursor)
   end
+
+  defp repeat(value, times), do: for(_n <- 1..times, do: value)
 end
