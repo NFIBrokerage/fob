@@ -1,6 +1,11 @@
 defmodule Fob.Cursor do
   @moduledoc """
-  TODO
+  A cursor data structure that can be used to fetch the next pages
+
+  The cursor data structure is somewhat similar to a `Stream` except that it
+  cannot wrap a stateful process and does not require any life-cycle hooks.
+  The next pages of data can be fetched by calling `next/1` successively,
+  passing in the updated `t:t/0` data structure each time.
   """
 
   if Version.match?(System.version(), ">= 1.8.0") do

@@ -8,5 +8,6 @@ defmodule NillableSchema do
   schema "nillable_schema" do
     # a field named "date" of type :date
     field :date, :date
+    field :count, :integer
   end
 end
