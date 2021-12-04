@@ -48,15 +48,15 @@ Why build an incomplete and minimal keyset pagination
 library when there are already workable implementations in
 [Paginator](https://github.com/duffelhq/paginator) and
 [Quarto](https://github.com/maartenvanvliet/quarto)? Fob was originally cut
-out of another library called Haste which we intend on open sourcing soon.
-In our setup, Haste only uses postgres and satisfies the above assumptions.
+out of another library called Haste. In our setup, Haste satisfies all of the
+above assumptions.
 
 ## Installation
 
 ```elixir
 def deps do
   [
-    {:fob, "~> 0.1"}
+    {:fob, "~> 0.5"}
   ]
 end
 ```
