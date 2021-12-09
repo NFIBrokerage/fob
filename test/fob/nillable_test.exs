@@ -16,6 +16,7 @@ defmodule Fob.NillableTest do
 
   alias Fob.Cursor
   alias Ecto.Multi
+  import Enum, only: [to_list: 1]
 
   setup do
     [schema: NillableSchema, repo: Fob.Repo]
@@ -65,27 +66,21 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(0..4)
+    assert records |> Enum.map(& &1.id) == to_list(0..4)
 
     assert records |> Enum.map(& &1.date) ==
-             Date.range(~D[2020-02-12], ~D[2020-02-16]) |> Enum.to_list()
+             Date.range(~D[2020-02-12], ~D[2020-02-16]) |> to_list()
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [5, 6, 7, 8, 9]
 
-    assert records |> Enum.map(& &1.date) == [
-             ~D[2020-02-17],
-             nil,
-             nil,
-             nil,
-             nil
-           ]
+    assert records |> Enum.map(& &1.date) == [~D[2020-02-17] | repeat(nil, 4)]
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == [10, 11, 12, 13, 14]
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
+    assert records |> Enum.map(& &1.id) == to_list(10..14)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 5)
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -101,7 +96,7 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(6..10)
+    assert records |> Enum.map(& &1.id) == to_list(6..10)
     assert records |> Enum.map(& &1.count) == repeat(nil, 5)
 
     {records, cursor} = Cursor.next(cursor)
@@ -111,8 +106,8 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(4..0)
-    assert records |> Enum.map(& &1.count) == Enum.to_list(5..1)
+    assert records |> Enum.map(& &1.id) == to_list(4..0)
+    assert records |> Enum.map(& &1.count) == to_list(5..1)
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -128,18 +123,18 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.count) == Enum.to_list(1..5)
-    assert records |> Enum.map(& &1.id) == Enum.to_list(0..4)
+    assert records |> Enum.map(& &1.count) == to_list(1..5)
+    assert records |> Enum.map(& &1.id) == to_list(0..4)
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.count) == [6 | repeat(nil, 4)]
-    assert records |> Enum.map(& &1.id) == Enum.to_list(5..9)
+    assert records |> Enum.map(& &1.id) == to_list(5..9)
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.count) == repeat(nil, 5)
-    assert records |> Enum.map(& &1.id) == Enum.to_list(10..14)
+    assert records |> Enum.map(& &1.id) == to_list(10..14)
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -155,27 +150,21 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(0..4)
+    assert records |> Enum.map(& &1.id) == to_list(0..4)
 
     assert records |> Enum.map(& &1.date) ==
-             Date.range(~D[2020-02-12], ~D[2020-02-16]) |> Enum.to_list()
+             Date.range(~D[2020-02-12], ~D[2020-02-16]) |> to_list()
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(5..9)
+    assert records |> Enum.map(& &1.id) == to_list(5..9)
 
-    assert records |> Enum.map(& &1.date) == [
-             ~D[2020-02-17],
-             nil,
-             nil,
-             nil,
-             nil
-           ]
+    assert records |> Enum.map(& &1.date) == [~D[2020-02-17] | repeat(nil, 4)]
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(10..14)
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
+    assert records |> Enum.map(& &1.id) == to_list(10..14)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 5)
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -191,27 +180,21 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(6..10)
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
+    assert records |> Enum.map(& &1.id) == to_list(6..10)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 5)
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [11, 12, 13, 14, 0]
 
-    assert records |> Enum.map(& &1.date) == [
-             nil,
-             nil,
-             nil,
-             nil,
-             ~D[2020-02-12]
-           ]
+    assert records |> Enum.map(& &1.date) == repeat(nil, 4) ++ [~D[2020-02-12]]
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(1..5)
+    assert records |> Enum.map(& &1.id) == to_list(1..5)
 
     assert records |> Enum.map(& &1.date) ==
-             Date.range(~D[2020-02-13], ~D[2020-02-17]) |> Enum.to_list()
+             Date.range(~D[2020-02-13], ~D[2020-02-17]) |> to_list()
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -227,27 +210,21 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == [14, 13, 12, 11, 10]
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
+    assert records |> Enum.map(& &1.id) == to_list(14..10)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 5)
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == [9, 8, 7, 6, 5]
+    assert records |> Enum.map(& &1.id) == to_list(9..5)
 
-    assert records |> Enum.map(& &1.date) == [
-             nil,
-             nil,
-             nil,
-             nil,
-             ~D[2020-02-17]
-           ]
+    assert records |> Enum.map(& &1.date) == repeat(nil, 4) ++ [~D[2020-02-17]]
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(4..0)
+    assert records |> Enum.map(& &1.id) == to_list(4..0)
 
     assert records |> Enum.map(& &1.date) ==
-             Date.range(~D[2020-02-16], ~D[2020-02-12]) |> Enum.to_list()
+             Date.range(~D[2020-02-16], ~D[2020-02-12]) |> to_list()
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -263,27 +240,20 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == [14, 13, 12, 11, 10]
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
+    assert records |> Enum.map(& &1.id) == to_list(14..10)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 5)
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == [9, 8, 7, 6, 5]
-
-    assert records |> Enum.map(& &1.date) == [
-             nil,
-             nil,
-             nil,
-             nil,
-             ~D[2020-02-17]
-           ]
+    assert records |> Enum.map(& &1.id) == to_list(9..5)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 4) ++ [~D[2020-02-17]]
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(4..0)
+    assert records |> Enum.map(& &1.id) == to_list(4..0)
 
     assert records |> Enum.map(& &1.date) ==
-             Date.range(~D[2020-02-16], ~D[2020-02-12]) |> Enum.to_list()
+             Date.range(~D[2020-02-16], ~D[2020-02-12]) |> to_list()
 
     {[], _cursor} = Cursor.next(cursor)
   end
@@ -299,27 +269,20 @@ defmodule Fob.NillableTest do
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(5..1)
+    assert records |> Enum.map(& &1.id) == to_list(5..1)
 
     assert records |> Enum.map(& &1.date) ==
-             Date.range(~D[2020-02-17], ~D[2020-02-13]) |> Enum.to_list()
+             Date.range(~D[2020-02-17], ~D[2020-02-13]) |> to_list()
 
     {records, cursor} = Cursor.next(cursor)
 
     assert records |> Enum.map(& &1.id) == [0, 14, 13, 12, 11]
-
-    assert records |> Enum.map(& &1.date) == [
-             ~D[2020-02-12],
-             nil,
-             nil,
-             nil,
-             nil
-           ]
+    assert records |> Enum.map(& &1.date) == [~D[2020-02-12] | repeat(nil, 4)]
 
     {records, cursor} = Cursor.next(cursor)
 
-    assert records |> Enum.map(& &1.id) == Enum.to_list(10..6)
-    assert records |> Enum.map(& &1.date) == [nil, nil, nil, nil, nil]
+    assert records |> Enum.map(& &1.id) == to_list(10..6)
+    assert records |> Enum.map(& &1.date) == repeat(nil, 5)
 
     {[], _cursor} = Cursor.next(cursor)
   end

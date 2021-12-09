@@ -9,7 +9,7 @@ about the queries passed to it, such as:
 
 - each schema will have only one primary key
 - each query must be ordered by at least the schema's primary key
-- the primary keys is always the final ordering condition
+- the primary key is always the final ordering condition
 - associations are untested and probably do not work
     - (left) joins are known to work though
 
