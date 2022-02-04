@@ -6,8 +6,10 @@ defmodule Fob.Ordering do
 
   alias Ecto.Query
 
+  @typep table :: non_neg_integer()
+
   @type t :: %__MODULE__{
-          table: non_neg_integer(),
+          table: table(),
           column: atom(),
           direction: :asc | :desc
         }
@@ -35,26 +37,26 @@ defmodule Fob.Ordering do
     }
   end
 
-  @spec columns(%Query{}) :: [atom()]
+  @spec columns(%Query{}) :: [{table(), atom()}]
   def columns(%Query{} = query) do
     query
     |> config()
-    |> Enum.map(& &1.column)
+    |> Enum.map(&{&1.table, &1.column})
     |> Enum.uniq()
   end
 
   # this mapping can help translate between the columns returned by config/1
   # into what will be on the records, so it's useful for fetching values for
   # page breaks
-  @spec selection_mapping(%Query{}) :: %{atom() => atom()}
+  @spec selection_mapping(%Query{}) :: %{{table(), atom()} => atom()}
   def selection_mapping(%Query{
         select: %Query.SelectExpr{
           expr: {:%{}, _, [{:|, _, [{:&, _, [0]}, merges]}]}
         }
       }) do
-    Enum.into(merges, %{}, fn {toplevel_name,
-                               {{:., _, [{:&, _, _table}, name_in_table]}, _, _}} ->
-      {name_in_table, toplevel_name}
+    Map.new(merges, fn {toplevel_name,
+                        {{:., _, [{:&, _, [table]}, name_in_table]}, _, _}} ->
+      {{table, name_in_table}, toplevel_name}
     end)
   end
 

@@ -97,8 +97,8 @@ defmodule Fob.PageBreak do
   those to the held `start` and `stop` page-break values.
 
   This function performs that comparison and returns a tuple of the new
-  `start` and `stop`, where `proposed` could either replace the `start` or
-  `stop`.
+  `start` and `stop`, where `proposed` could possibly replace the `start` or
+  `stop` (or neither).
   """
   @doc since: "0.3.0"
   @spec expand_space(
