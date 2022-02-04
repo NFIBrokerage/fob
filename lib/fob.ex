@@ -230,10 +230,10 @@ defmodule Fob do
 
     query
     |> Ordering.columns()
-    |> Enum.map(fn column ->
-      key = Map.get(selection_mapping, column, column)
+    |> Enum.map(fn {_table, name} = column ->
+      key = Map.get(selection_mapping, column, name)
 
-      %PageBreak{column: column, value: get_in(record, [Access.key(key)])}
+      %PageBreak{column: name, value: get_in(record, [Access.key(key)])}
     end)
   end
 
@@ -260,10 +260,7 @@ defmodule Fob do
 
   defp reverse(page_breaks) do
     Enum.map(page_breaks, fn page_break ->
-      %PageBreak{
-        page_break
-        | direction: Ordering.opposite(page_break.direction)
-      }
+      update_in(page_break.direction, &Ordering.opposite/1)
     end)
   end
 end
