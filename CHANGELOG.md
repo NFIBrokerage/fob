@@ -6,6 +6,14 @@ The format is based on [Keep a
 Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.1 - 2022-02-04
+
+### Fixed
+
+- Fixed a case where `Fob.page_breaks/2` would miscalculate the page breaks
+  when a query was ordered by a column which was also part of a `select`
+  that belonged to a joined table.
+
 ## 0.5.0 - 2021-12-03
 
 ### Changed
