@@ -6,6 +6,7 @@ defmodule Fob.Ordering do
 
   alias Ecto.Query
   import Ecto.Query
+  require Fob.FragmentBuilder
 
   @typep table :: nil | non_neg_integer()
 
@@ -46,25 +47,35 @@ defmodule Fob.Ordering do
           {:fragment, [],
            [
              raw: _pre,
-             expr: {{:., [], [{:&, [], [table]}, column]}, [], []},
+             expr: {{:., [], [{:&, [], [table]}, _column]}, [], []},
              raw: _post
-           ]}},
-         _query
+           ]} = f},
+         query
        ) do
-    # this can be rebuild by the incoming or found via a Macro.prewalker + Enum.find
-    # as well as the name of the virtual column
-    a =
-      dynamic(
-        [{t, table}],
-        fragment("(? % 2)", field(t, ^column))
-      )
+    # TODO We probably should walk to get the table as well
+    column =
+      query.select.expr
+      |> Macro.prewalk(nil, fn x, acc ->
+        case x do
+          {a, ^f} when is_atom(a) ->
+            {x, a}
+
+          _ ->
+            {x, acc}
+        end
+      end)
+      |> elem(1)
 
     %__MODULE__{
       direction: direction,
-      column: :virtual_column,
+      column: column,
       table: table,
-      # this needs to be the select expression 
-      field_or_alias: a
+      field_or_alias:
+        Fob.FragmentBuilder.build_from_existing(
+          [{t, table}],
+          f,
+          []
+        )
     }
   end
 

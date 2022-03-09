@@ -62,9 +62,9 @@ defmodule Fob.ComplexOrderByTest do
           s in c.schema,
           select: %{
             id: s.id,
-            virtual_column: fragment("(?) as virtual_column", s.id)
+            virtual_column: fragment("(? % 2)", s.id)
           },
-          order_by: [desc: fragment("virtual_column"), asc: s.id]
+          order_by: [desc: fragment("(? % 2)", s.id), desc: s.id]
         ),
         c.repo,
         nil,
@@ -72,10 +72,10 @@ defmodule Fob.ComplexOrderByTest do
       )
 
     assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == Enum.to_list(20..11)
+    assert Enum.map(records, & &1.id) == [19, 17, 15, 13, 11, 9, 7, 5, 3, 1]
 
     assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == Enum.to_list(10..1)
+    assert Enum.map(records, & &1.id) == [20, 18, 16, 14, 12, 10, 8, 6, 4, 2]
 
     assert {[], _cursor} = Cursor.next(cursor)
   end
