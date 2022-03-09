@@ -155,49 +155,53 @@ defmodule Fob do
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
+           table: table,
            value: value,
-           field_or_alias: field_or_alias
+           column: column
          },
          :strict
        )
        when direction in @ascending do
-    dynamic(^field_or_alias > ^value)
+    dynamic([{t, table}], field(t, ^column) > ^value)
   end
 
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
+           table: table,
            value: value,
-           field_or_alias: field_or_alias
+           column: column
          },
          :lenient
        )
        when direction in @ascending do
-    dynamic(^field_or_alias >= ^value)
+    dynamic([{t, table}], field(t, ^column) >= ^value)
   end
 
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
+           table: table,
            value: value,
-           field_or_alias: field_or_alias
+           column: column
          },
          :strict
        )
        when direction in @descending do
-    dynamic([{t, table}], ^field_or_alias < ^value)
+    dynamic([{t, table}], field(t, ^column) < ^value)
   end
 
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
+           table: table,
            value: value,
-           field_or_alias: field_or_alias
+           column: column
          },
          :lenient
        )
        when direction in @descending do
-    dynamic(^field_or_alias <= ^value)
+    dynamic([{t, table}], field(t, ^column) <= ^value)
   end
 
   @doc since: "0.1.0"
