@@ -5,16 +5,18 @@ defmodule Fob.Ordering do
   # in a query
 
   alias Ecto.Query
+  import Ecto.Query
 
   @typep table :: non_neg_integer()
 
   @type t :: %__MODULE__{
           table: table(),
           column: atom(),
-          direction: :asc | :desc
+          direction: :asc | :desc,
+          field_or_alias: any()
         }
 
-  defstruct ~w[table column direction]a
+  defstruct ~w[table column direction field_or_alias]a
 
   @spec config(%Query{}) :: [t()]
   def config(%Query{order_bys: orderings}) do
@@ -33,15 +35,18 @@ defmodule Fob.Ordering do
     %__MODULE__{
       direction: direction,
       column: column,
-      table: table
+      table: table,
+      field_or_alias: dynamic([{t, table}], field(t, ^column))
     }
   end
 
-  @spec columns(%Query{}) :: [{table(), atom()}]
+  # TODO support the raw expression
+
+  @spec columns(%Query{}) :: [{table(), atom(), any()}]
   def columns(%Query{} = query) do
     query
     |> config()
-    |> Enum.map(&{&1.table, &1.column})
+    |> Enum.map(&{&1.table, &1.column, &1.field_or_alias})
     |> Enum.uniq()
   end
 
@@ -49,6 +54,7 @@ defmodule Fob.Ordering do
   # into what will be on the records, so it's useful for fetching values for
   # page breaks
   @spec selection_mapping(%Query{}) :: %{{table(), atom()} => atom()}
+  # TODO need to support the select merge fields
   def selection_mapping(%Query{
         select: %Query.SelectExpr{
           expr: {:%{}, _, [{:|, _, [{:&, _, [0]}, merges]}]}

@@ -14,7 +14,8 @@ defmodule Fob.PageBreak do
 
   @type t :: %__MODULE__{}
 
-  defstruct ~w[column value table direction]a
+  @enforce_keys [:field_or_alias]
+  defstruct ~w[column value table direction field_or_alias]a
 
   def add_query_info(nil, _), do: nil
 

@@ -69,30 +69,27 @@ defmodule Fob do
   defp apply_keyset_comparison(
          %PageBreak{
            direction: direction,
-           column: column,
-           table: table,
-           value: nil
+           value: nil,
+           field_or_alias: field_or_alias
          },
          acc
        )
        when direction in [:asc, :asc_nulls_last, :desc_nulls_last] do
-    dynamic([{t, table}], field(t, ^column) |> is_nil() and ^acc)
+    dynamic(^field_or_alias |> is_nil() and ^acc)
   end
 
   defp apply_keyset_comparison(
          %PageBreak{
            direction: direction,
-           column: column,
-           table: table,
-           value: nil
+           value: nil,
+           field_or_alias: field_or_alias
          },
          acc
        )
        when direction in [:desc, :desc_nulls_first, :asc_nulls_first] do
     dynamic(
-      [{t, table}],
-      not is_nil(field(t, ^column)) or
-        (field(t, ^column) |> is_nil() and ^acc)
+      not is_nil(^field_or_alias) or
+        (^field_or_alias |> is_nil() and ^acc)
     )
   end
 
@@ -101,64 +98,52 @@ defmodule Fob do
   defp apply_keyset_comparison(
          %PageBreak{
            direction: direction,
-           column: column,
-           table: table,
-           value: value
+           value: value,
+           field_or_alias: field_or_alias
          },
          acc
        )
        when direction in [:asc, :asc_nulls_last] do
     dynamic(
-      [{t, table}],
-      field(t, ^column) > ^value or field(t, ^column) |> is_nil() or
-        (field(t, ^column) == ^value and ^acc)
+      ^field_or_alias > ^value or ^field_or_alias |> is_nil() or
+        (^field_or_alias == ^value and ^acc)
     )
   end
 
   defp apply_keyset_comparison(
          %PageBreak{
            direction: :asc_nulls_first,
-           column: column,
-           table: table,
-           value: value
+           value: value,
+           field_or_alias: field_or_alias
          },
          acc
        ) do
-    dynamic(
-      [{t, table}],
-      field(t, ^column) > ^value or (field(t, ^column) == ^value and ^acc)
-    )
+    dynamic(^field_or_alias > ^value or (^field_or_alias == ^value and ^acc))
   end
 
   defp apply_keyset_comparison(
          %PageBreak{
            direction: direction,
-           column: column,
-           table: table,
-           value: value
+           value: value,
+           field_or_alias: field_or_alias
          },
          acc
        )
        when direction in [:desc, :desc_nulls_first] do
-    dynamic(
-      [{t, table}],
-      field(t, ^column) < ^value or (field(t, ^column) == ^value and ^acc)
-    )
+    dynamic(^field_or_alias < ^value or (^field_or_alias == ^value and ^acc))
   end
 
   defp apply_keyset_comparison(
          %PageBreak{
            direction: :desc_nulls_last,
-           column: column,
-           table: table,
-           value: value
+           value: value,
+           field_or_alias: field_or_alias
          },
          acc
        ) do
     dynamic(
-      [{t, table}],
-      field(t, ^column) < ^value or field(t, ^column) |> is_nil() or
-        (field(t, ^column) == ^value and ^acc)
+      ^field_or_alias < ^value or ^field_or_alias |> is_nil() or
+        (^field_or_alias == ^value and ^acc)
     )
   end
 
@@ -170,53 +155,49 @@ defmodule Fob do
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
-           table: table,
            value: value,
-           column: column
+           field_or_alias: field_or_alias
          },
          :strict
        )
        when direction in @ascending do
-    dynamic([{t, table}], field(t, ^column) > ^value)
+    dynamic(^field_or_alias > ^value)
   end
 
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
-           table: table,
            value: value,
-           column: column
+           field_or_alias: field_or_alias
          },
          :lenient
        )
        when direction in @ascending do
-    dynamic([{t, table}], field(t, ^column) >= ^value)
+    dynamic(^field_or_alias >= ^value)
   end
 
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
-           table: table,
            value: value,
-           column: column
+           field_or_alias: field_or_alias
          },
          :strict
        )
        when direction in @descending do
-    dynamic([{t, table}], field(t, ^column) < ^value)
+    dynamic([{t, table}], ^field_or_alias < ^value)
   end
 
   defp apply_basic_comparison(
          %PageBreak{
            direction: direction,
-           table: table,
            value: value,
-           column: column
+           field_or_alias: field_or_alias
          },
          :lenient
        )
        when direction in @descending do
-    dynamic([{t, table}], field(t, ^column) <= ^value)
+    dynamic(^field_or_alias <= ^value)
   end
 
   @doc since: "0.1.0"
@@ -230,10 +211,14 @@ defmodule Fob do
 
     query
     |> Ordering.columns()
-    |> Enum.map(fn {_table, name} = column ->
-      key = Map.get(selection_mapping, column, name)
+    |> Enum.map(fn {table, name, field_or_alias} ->
+      key = Map.get(selection_mapping, {table, name}, name)
 
-      %PageBreak{column: name, value: get_in(record, [Access.key(key)])}
+      %PageBreak{
+        column: name,
+        value: get_in(record, [Access.key(key)]),
+        field_or_alias: field_or_alias
+      }
     end)
   end
 
