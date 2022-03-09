@@ -43,16 +43,21 @@ defmodule Fob.Ordering do
   end
 
   defp config_from_ordering_expressions(
-         {direction,
-          {:fragment, [],
-           [
-             raw: _pre,
-             expr: {{:., [], [{:&, [], [table]}, _column]}, [], []},
-             raw: _post
-           ]} = f},
+         {direction, {:fragment, [], _} = f},
          query
        ) do
-    # TODO We probably should walk to get the table as well
+    table =
+      Macro.prewalk(f, nil, fn x, acc ->
+        case x do
+          {:&, [], [t]} when is_integer(t) ->
+            {x, t}
+
+          _ ->
+            {x, acc}
+        end
+      end)
+      |> elem(1)
+
     column =
       query.select.expr
       |> Macro.prewalk(nil, fn x, acc ->
@@ -66,30 +71,18 @@ defmodule Fob.Ordering do
       end)
       |> elem(1)
 
+    field_or_alias =
+      Fob.FragmentBuilder.build_from_existing(
+        [{t, table}],
+        f,
+        []
+      )
+
     %__MODULE__{
       direction: direction,
       column: column,
       table: table,
-      field_or_alias:
-        Fob.FragmentBuilder.build_from_existing(
-          [{t, table}],
-          f,
-          []
-        )
-    }
-  end
-
-  defp config_from_ordering_expressions(
-         {direction, {:fragment, [], [raw: virtual_column]}},
-         _query
-       )
-       when is_binary(virtual_column) do
-    %__MODULE__{
-      direction: direction,
-      column: String.to_existing_atom(virtual_column),
-      table: nil,
-      # this needs to be the select expression 
-      field_or_alias: dynamic(coalesce(fragment("?", ^virtual_column), nil))
+      field_or_alias: field_or_alias
     }
   end
 
