@@ -6,6 +6,7 @@ defmodule Fob.Ordering do
 
   alias Ecto.Query
   import Ecto.Query
+  alias Fob.FragmentBuilder
   require Fob.FragmentBuilder
 
   @typep table :: nil | non_neg_integer()
@@ -43,39 +44,17 @@ defmodule Fob.Ordering do
   end
 
   defp config_from_ordering_expressions(
-         {direction, {:fragment, [], _} = f},
+         {direction, {:fragment, [], _} = frag},
          query
        ) do
-    table =
-      Macro.prewalk(f, nil, fn x, acc ->
-        case x do
-          {:&, [], [t]} when is_integer(t) ->
-            {x, t}
+    table = FragmentBuilder.table_for_fragment(frag)
 
-          _ ->
-            {x, acc}
-        end
-      end)
-      |> elem(1)
-
-    column =
-      query.select.expr
-      |> Macro.prewalk(nil, fn x, acc ->
-        case x do
-          {a, ^f} when is_atom(a) ->
-            {x, a}
-
-          _ ->
-            {x, acc}
-        end
-      end)
-      |> elem(1)
+    column = FragmentBuilder.column_for_query_fragment(frag, query)
 
     field_or_alias =
       Fob.FragmentBuilder.build_from_existing(
         [{t, table}],
-        f,
-        []
+        frag
       )
 
     %__MODULE__{
@@ -90,7 +69,7 @@ defmodule Fob.Ordering do
   def columns(%Query{} = query) do
     query
     |> config()
-    |> Enum.map(&{&1.table, &1.column, &1.field_or_alias})
+    |> Enum.map(&{&1.table, &1.column})
     |> Enum.uniq()
   end
 
