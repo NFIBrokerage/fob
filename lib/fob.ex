@@ -57,7 +57,9 @@ defmodule Fob do
     initial_acc = apply_basic_comparison(id_break, comparison_strictness)
 
     where_clause =
-      Enum.reduce(remaining_breaks, initial_acc, &apply_keyset_comparison/2)
+      remaining_breaks
+      |> PageBreak.wrap_field_or_alias(query)
+      |> Enum.reduce(initial_acc, &apply_keyset_comparison/2)
 
     where(query, ^where_clause)
   end
@@ -67,98 +69,77 @@ defmodule Fob do
   # --- value is nil
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           column: column,
-           table: table,
-           value: nil
-         },
+         {%PageBreak{
+            direction: direction,
+            value: nil
+          }, field_or_alias},
          acc
        )
        when direction in [:asc, :asc_nulls_last, :desc_nulls_last] do
-    dynamic([{t, table}], field(t, ^column) |> is_nil() and ^acc)
+    dynamic(^field_or_alias |> is_nil() and ^acc)
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           column: column,
-           table: table,
-           value: nil
-         },
+         {%PageBreak{
+            direction: direction,
+            value: nil
+          }, field_or_alias},
          acc
        )
        when direction in [:desc, :desc_nulls_first, :asc_nulls_first] do
     dynamic(
-      [{t, table}],
-      not is_nil(field(t, ^column)) or
-        (field(t, ^column) |> is_nil() and ^acc)
+      not is_nil(^field_or_alias) or
+        (^field_or_alias |> is_nil() and ^acc)
     )
   end
 
   # --- value is non-nil
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           column: column,
-           table: table,
-           value: value
-         },
+         {%PageBreak{
+            direction: direction,
+            value: value
+          }, field_or_alias},
          acc
        )
        when direction in [:asc, :asc_nulls_last] do
     dynamic(
-      [{t, table}],
-      field(t, ^column) > ^value or field(t, ^column) |> is_nil() or
-        (field(t, ^column) == ^value and ^acc)
+      ^field_or_alias > ^value or ^field_or_alias |> is_nil() or
+        (^field_or_alias == ^value and ^acc)
     )
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: :asc_nulls_first,
-           column: column,
-           table: table,
-           value: value
-         },
+         {%PageBreak{
+            direction: :asc_nulls_first,
+            value: value
+          }, field_or_alias},
          acc
        ) do
-    dynamic(
-      [{t, table}],
-      field(t, ^column) > ^value or (field(t, ^column) == ^value and ^acc)
-    )
+    dynamic(^field_or_alias > ^value or (^field_or_alias == ^value and ^acc))
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           column: column,
-           table: table,
-           value: value
-         },
+         {%PageBreak{
+            direction: direction,
+            value: value
+          }, field_or_alias},
          acc
        )
        when direction in [:desc, :desc_nulls_first] do
-    dynamic(
-      [{t, table}],
-      field(t, ^column) < ^value or (field(t, ^column) == ^value and ^acc)
-    )
+    dynamic(^field_or_alias < ^value or (^field_or_alias == ^value and ^acc))
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: :desc_nulls_last,
-           column: column,
-           table: table,
-           value: value
-         },
+         {%PageBreak{
+            direction: :desc_nulls_last,
+            value: value
+          }, field_or_alias},
          acc
        ) do
     dynamic(
-      [{t, table}],
-      field(t, ^column) < ^value or field(t, ^column) |> is_nil() or
-        (field(t, ^column) == ^value and ^acc)
+      ^field_or_alias < ^value or ^field_or_alias |> is_nil() or
+        (^field_or_alias == ^value and ^acc)
     )
   end
 
@@ -230,10 +211,13 @@ defmodule Fob do
 
     query
     |> Ordering.columns()
-    |> Enum.map(fn {_table, name} = column ->
-      key = Map.get(selection_mapping, column, name)
+    |> Enum.map(fn {table, name} ->
+      key = Map.get(selection_mapping, {table, name}, name)
 
-      %PageBreak{column: name, value: get_in(record, [Access.key(key)])}
+      %PageBreak{
+        column: name,
+        value: get_in(record, [Access.key(key)])
+      }
     end)
   end
 

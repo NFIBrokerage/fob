@@ -5,39 +5,67 @@ defmodule Fob.Ordering do
   # in a query
 
   alias Ecto.Query
+  import Ecto.Query
+  alias Fob.FragmentBuilder
+  require Fob.FragmentBuilder
 
-  @typep table :: non_neg_integer()
+  @typep table :: nil | non_neg_integer()
 
   @type t :: %__MODULE__{
           table: table(),
           column: atom(),
-          direction: :asc | :desc
+          direction: :asc | :desc,
+          field_or_alias: any()
         }
 
-  defstruct ~w[table column direction]a
+  defstruct ~w[table column direction field_or_alias]a
 
   @spec config(%Query{}) :: [t()]
-  def config(%Query{order_bys: orderings}) do
+  def config(%Query{order_bys: orderings} = query) do
     Enum.flat_map(orderings, fn %Query.QueryExpr{expr: exprs} ->
-      config_from_ordering_expressions(exprs)
+      config_from_ordering_expressions(exprs, query)
     end)
   end
 
-  defp config_from_ordering_expressions(exprs) when is_list(exprs) do
-    Enum.map(exprs, &config_from_ordering_expressions/1)
+  defp config_from_ordering_expressions(exprs, query) when is_list(exprs) do
+    Enum.map(exprs, &config_from_ordering_expressions(&1, query))
   end
 
   defp config_from_ordering_expressions(
-         {direction, {{:., _, [{:&, _, [table]}, column]}, _, _}}
+         {direction, {{:., _, [{:&, _, [table]}, column]}, _, _}},
+         _
        ) do
     %__MODULE__{
       direction: direction,
       column: column,
-      table: table
+      table: table,
+      field_or_alias: dynamic([{t, table}], field(t, ^column))
     }
   end
 
-  @spec columns(%Query{}) :: [{table(), atom()}]
+  defp config_from_ordering_expressions(
+         {direction, {:fragment, [], _} = frag},
+         query
+       ) do
+    table = FragmentBuilder.table_for_fragment(frag)
+
+    column = FragmentBuilder.column_for_query_fragment(frag, query)
+
+    field_or_alias =
+      Fob.FragmentBuilder.build_from_existing(
+        [{t, table}],
+        frag
+      )
+
+    %__MODULE__{
+      direction: direction,
+      column: column,
+      table: table,
+      field_or_alias: field_or_alias
+    }
+  end
+
+  @spec columns(%Query{}) :: [{table(), atom(), any()}]
   def columns(%Query{} = query) do
     query
     |> config()

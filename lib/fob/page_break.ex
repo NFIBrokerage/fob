@@ -31,6 +31,18 @@ defmodule Fob.PageBreak do
     %__MODULE__{page_break | table: order.table, direction: order.direction}
   end
 
+  def wrap_field_or_alias(page_breaks, %Ecto.Query{} = query)
+      when is_list(page_breaks) do
+    ordering_config = Ordering.config(query)
+
+    Enum.map(page_breaks, &wrap_field_or_alias(&1, ordering_config))
+  end
+
+  def wrap_field_or_alias(%{column: column} = page_break, ordering_config) do
+    order = Enum.find(ordering_config, fn order -> column == order.column end)
+    {page_break, order.field_or_alias}
+  end
+
   @doc since: "0.2.0"
   def compare(a, b, query) when is_list(a) and is_list(b) do
     compare(add_query_info(a, query), add_query_info(b, query))
