@@ -14,8 +14,7 @@ defmodule Fob.PageBreak do
 
   @type t :: %__MODULE__{}
 
-  @enforce_keys [:field_or_alias]
-  defstruct ~w[column value table direction field_or_alias]a
+  defstruct ~w[column value table direction]a
 
   def add_query_info(nil, _), do: nil
 
@@ -30,6 +29,18 @@ defmodule Fob.PageBreak do
     order = Enum.find(ordering_config, fn order -> column == order.column end)
 
     %__MODULE__{page_break | table: order.table, direction: order.direction}
+  end
+
+  def wrap_field_or_alias(page_breaks, %Ecto.Query{} = query)
+      when is_list(page_breaks) do
+    ordering_config = Ordering.config(query)
+
+    Enum.map(page_breaks, &wrap_field_or_alias(&1, ordering_config))
+  end
+
+  def wrap_field_or_alias(%{column: column} = page_break, ordering_config) do
+    order = Enum.find(ordering_config, fn order -> column == order.column end)
+    {page_break, order.field_or_alias}
   end
 
   @doc since: "0.2.0"

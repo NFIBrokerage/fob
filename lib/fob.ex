@@ -57,7 +57,9 @@ defmodule Fob do
     initial_acc = apply_basic_comparison(id_break, comparison_strictness)
 
     where_clause =
-      Enum.reduce(remaining_breaks, initial_acc, &apply_keyset_comparison/2)
+      remaining_breaks
+      |> PageBreak.wrap_field_or_alias(query)
+      |> Enum.reduce(initial_acc, &apply_keyset_comparison/2)
 
     where(query, ^where_clause)
   end
@@ -67,11 +69,10 @@ defmodule Fob do
   # --- value is nil
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           value: nil,
-           field_or_alias: field_or_alias
-         },
+         {%PageBreak{
+            direction: direction,
+            value: nil
+          }, field_or_alias},
          acc
        )
        when direction in [:asc, :asc_nulls_last, :desc_nulls_last] do
@@ -79,11 +80,10 @@ defmodule Fob do
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           value: nil,
-           field_or_alias: field_or_alias
-         },
+         {%PageBreak{
+            direction: direction,
+            value: nil
+          }, field_or_alias},
          acc
        )
        when direction in [:desc, :desc_nulls_first, :asc_nulls_first] do
@@ -96,11 +96,10 @@ defmodule Fob do
   # --- value is non-nil
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           value: value,
-           field_or_alias: field_or_alias
-         },
+         {%PageBreak{
+            direction: direction,
+            value: value
+          }, field_or_alias},
          acc
        )
        when direction in [:asc, :asc_nulls_last] do
@@ -111,22 +110,20 @@ defmodule Fob do
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: :asc_nulls_first,
-           value: value,
-           field_or_alias: field_or_alias
-         },
+         {%PageBreak{
+            direction: :asc_nulls_first,
+            value: value
+          }, field_or_alias},
          acc
        ) do
     dynamic(^field_or_alias > ^value or (^field_or_alias == ^value and ^acc))
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: direction,
-           value: value,
-           field_or_alias: field_or_alias
-         },
+         {%PageBreak{
+            direction: direction,
+            value: value
+          }, field_or_alias},
          acc
        )
        when direction in [:desc, :desc_nulls_first] do
@@ -134,11 +131,10 @@ defmodule Fob do
   end
 
   defp apply_keyset_comparison(
-         %PageBreak{
-           direction: :desc_nulls_last,
-           value: value,
-           field_or_alias: field_or_alias
-         },
+         {%PageBreak{
+            direction: :desc_nulls_last,
+            value: value
+          }, field_or_alias},
          acc
        ) do
     dynamic(
@@ -215,13 +211,12 @@ defmodule Fob do
 
     query
     |> Ordering.columns()
-    |> Enum.map(fn {table, name, field_or_alias} ->
+    |> Enum.map(fn {table, name} ->
       key = Map.get(selection_mapping, {table, name}, name)
 
       %PageBreak{
         column: name,
-        value: get_in(record, [Access.key(key)]),
-        field_or_alias: field_or_alias
+        value: get_in(record, [Access.key(key)])
       }
     end)
   end
