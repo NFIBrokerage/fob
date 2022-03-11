@@ -67,12 +67,25 @@ defmodule Fob do
   defp apply_keyset_comparison(page_break, accumulator)
 
   # --- value is nil
+  #
+  defp apply_keyset_comparison(
+         {%PageBreak{
+            direction: direction,
+            value: nil,
+            table: table,
+            column: column
+          }, :field},
+         acc
+       )
+       when direction in [:asc, :asc_nulls_last, :desc_nulls_last] do
+    dynamic([{t, table}], field(t, ^column) |> is_nil() and ^acc)
+  end
 
   defp apply_keyset_comparison(
          {%PageBreak{
             direction: direction,
             value: nil
-          }, field_or_alias},
+          }, {:alias, field_or_alias}},
          acc
        )
        when direction in [:asc, :asc_nulls_last, :desc_nulls_last] do
@@ -82,8 +95,25 @@ defmodule Fob do
   defp apply_keyset_comparison(
          {%PageBreak{
             direction: direction,
+            value: nil,
+            table: table,
+            column: column
+          }, :field},
+         acc
+       )
+       when direction in [:desc, :desc_nulls_first, :asc_nulls_first] do
+    dynamic(
+      [{t, table}],
+      not is_nil(field(t, ^column)) or
+        (field(t, ^column) |> is_nil() and ^acc)
+    )
+  end
+
+  defp apply_keyset_comparison(
+         {%PageBreak{
+            direction: direction,
             value: nil
-          }, field_or_alias},
+          }, {:alias, field_or_alias}},
          acc
        )
        when direction in [:desc, :desc_nulls_first, :asc_nulls_first] do
@@ -98,8 +128,25 @@ defmodule Fob do
   defp apply_keyset_comparison(
          {%PageBreak{
             direction: direction,
+            value: value,
+            table: table,
+            column: column
+          }, :field},
+         acc
+       )
+       when direction in [:asc, :asc_nulls_last] do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) > ^value or field(t, ^column) |> is_nil() or
+        (field(t, ^column) == ^value and ^acc)
+    )
+  end
+
+  defp apply_keyset_comparison(
+         {%PageBreak{
+            direction: direction,
             value: value
-          }, field_or_alias},
+          }, {:alias, field_or_alias}},
          acc
        )
        when direction in [:asc, :asc_nulls_last] do
@@ -112,8 +159,23 @@ defmodule Fob do
   defp apply_keyset_comparison(
          {%PageBreak{
             direction: :asc_nulls_first,
+            value: value,
+            table: table,
+            column: column
+          }, :field},
+         acc
+       ) do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) > ^value or (field(t, ^column) == ^value and ^acc)
+    )
+  end
+
+  defp apply_keyset_comparison(
+         {%PageBreak{
+            direction: :asc_nulls_first,
             value: value
-          }, field_or_alias},
+          }, {:alias, field_or_alias}},
          acc
        ) do
     dynamic(^field_or_alias > ^value or (^field_or_alias == ^value and ^acc))
@@ -122,8 +184,24 @@ defmodule Fob do
   defp apply_keyset_comparison(
          {%PageBreak{
             direction: direction,
+            value: value,
+            table: table,
+            column: column
+          }, :field},
+         acc
+       )
+       when direction in [:desc, :desc_nulls_first] do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) < ^value or (field(t, ^column) == ^value and ^acc)
+    )
+  end
+
+  defp apply_keyset_comparison(
+         {%PageBreak{
+            direction: direction,
             value: value
-          }, field_or_alias},
+          }, {:alias, field_or_alias}},
          acc
        )
        when direction in [:desc, :desc_nulls_first] do
@@ -133,8 +211,24 @@ defmodule Fob do
   defp apply_keyset_comparison(
          {%PageBreak{
             direction: :desc_nulls_last,
+            value: value,
+            table: table,
+            column: column
+          }, :field},
+         acc
+       ) do
+    dynamic(
+      [{t, table}],
+      field(t, ^column) < ^value or field(t, ^column) |> is_nil() or
+        (field(t, ^column) == ^value and ^acc)
+    )
+  end
+
+  defp apply_keyset_comparison(
+         {%PageBreak{
+            direction: :desc_nulls_last,
             value: value
-          }, field_or_alias},
+          }, {:alias, field_or_alias}},
          acc
        ) do
     dynamic(

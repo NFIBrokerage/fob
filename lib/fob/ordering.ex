@@ -5,7 +5,6 @@ defmodule Fob.Ordering do
   # in a query
 
   alias Ecto.Query
-  import Ecto.Query
   alias Fob.FragmentBuilder
   require Fob.FragmentBuilder
 
@@ -39,7 +38,7 @@ defmodule Fob.Ordering do
       direction: direction,
       column: column,
       table: table,
-      field_or_alias: dynamic([{t, table}], field(t, ^column))
+      field_or_alias: :field
     }
   end
 
@@ -61,7 +60,7 @@ defmodule Fob.Ordering do
       direction: direction,
       column: column,
       table: table,
-      field_or_alias: field_or_alias
+      field_or_alias: {:alias, field_or_alias}
     }
   end
 
