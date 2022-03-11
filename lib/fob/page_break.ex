@@ -31,16 +31,16 @@ defmodule Fob.PageBreak do
     %__MODULE__{page_break | table: order.table, direction: order.direction}
   end
 
-  def wrap_field_or_alias(page_breaks, %Ecto.Query{} = query)
+  def wrap_to_routeable(page_breaks, %Ecto.Query{} = query)
       when is_list(page_breaks) do
     ordering_config = Ordering.config(query)
 
-    Enum.map(page_breaks, &wrap_field_or_alias(&1, ordering_config))
+    Enum.map(page_breaks, &wrap_to_routeable(&1, ordering_config))
   end
 
-  def wrap_field_or_alias(%{column: column} = page_break, ordering_config) do
+  def wrap_to_routeable(%{column: column} = page_break, ordering_config) do
     order = Enum.find(ordering_config, fn order -> column == order.column end)
-    {page_break, order.field_or_alias}
+    {page_break, order.maybe_expression}
   end
 
   @doc since: "0.2.0"
