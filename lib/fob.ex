@@ -76,8 +76,6 @@ defmodule Fob do
 
   defp apply_keyset_comparison_field(page_break, acc)
 
-  # --- value is nil
-
   defp apply_keyset_comparison_field(
          %PageBreak{
            direction: direction,
@@ -198,8 +196,6 @@ defmodule Fob do
         (^expression |> is_nil() and ^acc)
     )
   end
-
-  # --- value is non-nil
 
   defp apply_keyset_comparison_expression(
          %PageBreak{
