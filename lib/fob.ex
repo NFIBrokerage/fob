@@ -39,13 +39,13 @@ defmodule Fob do
     limit(queryable, ^page_size)
   end
 
-  defp route_keyset_comparison(routeable_page_break, accumulator) do
+  defp route_keyset_comparison(routeable_page_break, acc) do
     case routeable_page_break do
       {page_break, nil} ->
-        apply_keyset_comparison_field(page_break, accumulator)
+        apply_keyset_comparison_field(page_break, acc)
 
       {page_break, expr} ->
-        apply_keyset_comparison_alias(page_break, expr, accumulator)
+        apply_keyset_comparison_expression(page_break, expr, acc)
     end
   end
 
@@ -74,7 +74,7 @@ defmodule Fob do
     where(query, ^where_clause)
   end
 
-  defp apply_keyset_comparison_field(page_break, accumulator)
+  defp apply_keyset_comparison_field(page_break, acc)
 
   # --- value is nil
 
@@ -172,7 +172,7 @@ defmodule Fob do
     )
   end
 
-  defp apply_keyset_comparison_alias(
+  defp apply_keyset_comparison_expression(
          %PageBreak{
            direction: direction,
            value: nil
@@ -184,7 +184,7 @@ defmodule Fob do
     dynamic(^expression |> is_nil() and ^acc)
   end
 
-  defp apply_keyset_comparison_alias(
+  defp apply_keyset_comparison_expression(
          %PageBreak{
            direction: direction,
            value: nil
@@ -201,7 +201,7 @@ defmodule Fob do
 
   # --- value is non-nil
 
-  defp apply_keyset_comparison_alias(
+  defp apply_keyset_comparison_expression(
          %PageBreak{
            direction: direction,
            value: value
@@ -216,7 +216,7 @@ defmodule Fob do
     )
   end
 
-  defp apply_keyset_comparison_alias(
+  defp apply_keyset_comparison_expression(
          %PageBreak{
            direction: :asc_nulls_first,
            value: value
@@ -227,7 +227,7 @@ defmodule Fob do
     dynamic(^expression > ^value or (^expression == ^value and ^acc))
   end
 
-  defp apply_keyset_comparison_alias(
+  defp apply_keyset_comparison_expression(
          %PageBreak{
            direction: direction,
            value: value
@@ -239,7 +239,7 @@ defmodule Fob do
     dynamic(^expression < ^value or (^expression == ^value and ^acc))
   end
 
-  defp apply_keyset_comparison_alias(
+  defp apply_keyset_comparison_expression(
          %PageBreak{
            direction: :desc_nulls_last,
            value: value
