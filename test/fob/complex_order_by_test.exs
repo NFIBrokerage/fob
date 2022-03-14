@@ -54,72 +54,6 @@ defmodule Fob.ComplexOrderByTest do
     assert {[], _cursor} = Cursor.next(cursor)
   end
 
-  test "when sorting ascending nulls first with fragment, we can get each page",
-       c do
-    cursor =
-      Cursor.new(
-        from(
-          s in c.schema,
-          select: %{
-            id: s.id,
-            virtual_column: fragment("(? % 2)", s.id)
-          },
-          order_by: [asc_nulls_first: fragment("(? % 2)", s.id), asc: s.id]
-        ),
-        c.repo,
-        _initial_page_breaks = nil,
-        5
-      )
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [2, 4, 6, 8, 10]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [12, 14, 16, 18, 20]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [1, 3, 5, 7, 9]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [11, 13, 15, 17, 19]
-
-    # end of the data set
-    assert {[], _cursor} = Cursor.next(cursor)
-  end
-
-  test "when sorting ascending nulls last with fragment, we can get each page",
-       c do
-    cursor =
-      Cursor.new(
-        from(
-          s in c.schema,
-          select: %{
-            id: s.id,
-            virtual_column: fragment("(? % 2)", s.id)
-          },
-          order_by: [asc_nulls_last: fragment("(? % 2)", s.id), asc: s.id]
-        ),
-        c.repo,
-        _initial_page_breaks = nil,
-        5
-      )
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [2, 4, 6, 8, 10]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [12, 14, 16, 18, 20]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [1, 3, 5, 7, 9]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [11, 13, 15, 17, 19]
-
-    # end of the data set
-    assert {[], _cursor} = Cursor.next(cursor)
-  end
-
   test "when sorting descending with fragment, the records are in reverse order",
        c do
     cursor =
@@ -131,58 +65,6 @@ defmodule Fob.ComplexOrderByTest do
             virtual_column: fragment("(? % 2)", s.id)
           },
           order_by: [desc: fragment("(? % 2)", s.id), desc: s.id]
-        ),
-        c.repo,
-        nil,
-        10
-      )
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [19, 17, 15, 13, 11, 9, 7, 5, 3, 1]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [20, 18, 16, 14, 12, 10, 8, 6, 4, 2]
-
-    assert {[], _cursor} = Cursor.next(cursor)
-  end
-
-  test "when sorting descending nulls first with fragment, the records are in reverse order",
-       c do
-    cursor =
-      Cursor.new(
-        from(
-          s in c.schema,
-          select: %{
-            id: s.id,
-            virtual_column: fragment("(? % 2)", s.id)
-          },
-          order_by: [desc_nulls_first: fragment("(? % 2)", s.id), desc: s.id]
-        ),
-        c.repo,
-        nil,
-        10
-      )
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [19, 17, 15, 13, 11, 9, 7, 5, 3, 1]
-
-    assert {records, cursor} = Cursor.next(cursor)
-    assert Enum.map(records, & &1.id) == [20, 18, 16, 14, 12, 10, 8, 6, 4, 2]
-
-    assert {[], _cursor} = Cursor.next(cursor)
-  end
-
-  test "when sorting descending nulls last with fragment, the records are in reverse order",
-       c do
-    cursor =
-      Cursor.new(
-        from(
-          s in c.schema,
-          select: %{
-            id: s.id,
-            virtual_column: fragment("(? % 2)", s.id)
-          },
-          order_by: [desc_nulls_last: fragment("(? % 2)", s.id), desc: s.id]
         ),
         c.repo,
         nil,
