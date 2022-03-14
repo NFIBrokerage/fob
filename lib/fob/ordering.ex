@@ -5,20 +5,20 @@ defmodule Fob.Ordering do
   # in a query
 
   alias Ecto.Query
-  import Ecto.Query
   alias Fob.FragmentBuilder
   require Fob.FragmentBuilder
 
   @typep table :: nil | non_neg_integer()
+  @typep expr :: Macro.t()
 
   @type t :: %__MODULE__{
           table: table(),
           column: atom(),
           direction: :asc | :desc,
-          field_or_alias: any()
+          maybe_expression: nil | expr()
         }
 
-  defstruct ~w[table column direction field_or_alias]a
+  defstruct ~w[table column direction maybe_expression]a
 
   @spec config(%Query{}) :: [t()]
   def config(%Query{order_bys: orderings} = query) do
@@ -39,7 +39,7 @@ defmodule Fob.Ordering do
       direction: direction,
       column: column,
       table: table,
-      field_or_alias: dynamic([{t, table}], field(t, ^column))
+      maybe_expression: nil
     }
   end
 
@@ -51,7 +51,7 @@ defmodule Fob.Ordering do
 
     column = FragmentBuilder.column_for_query_fragment(frag, query)
 
-    field_or_alias =
+    dyn_expression =
       Fob.FragmentBuilder.build_from_existing(
         [{t, table}],
         frag
@@ -61,7 +61,7 @@ defmodule Fob.Ordering do
       direction: direction,
       column: column,
       table: table,
-      field_or_alias: field_or_alias
+      maybe_expression: dyn_expression
     }
   end
 
