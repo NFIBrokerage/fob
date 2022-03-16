@@ -22,13 +22,23 @@ defmodule Fob.PageBreak do
       when is_list(page_breaks) do
     ordering_config = Ordering.config(query)
 
-    Enum.map(page_breaks, &add_query_info(&1, ordering_config))
+    Enum.map(page_breaks, &add_query_info(&1, ordering_config, query))
   end
 
-  def add_query_info(%{column: column} = page_break, ordering_config) do
+  def add_query_info(
+        %{column: column, value: value} = page_break,
+        ordering_config,
+        query
+      ) do
     order = Enum.find(ordering_config, fn order -> column == order.column end)
+    casted_value = cast_type(query, column, value)
 
-    %__MODULE__{page_break | table: order.table, direction: order.direction}
+    %__MODULE__{
+      page_break
+      | table: order.table,
+        direction: order.direction,
+        value: casted_value
+    }
   end
 
   def wrap_to_routeable(page_breaks, %Ecto.Query{} = query)
@@ -42,6 +52,22 @@ defmodule Fob.PageBreak do
     order = Enum.find(ordering_config, fn order -> column == order.column end)
     {page_break, order.maybe_expression}
   end
+
+  defp cast_type(query, column, value) do
+    with {_table_name, schema} <- query.from.source,
+         true <- function_exported?(schema, :__changeset__, 0),
+         %{^column => type} <- schema.__changeset__() do
+      do_cast_type(type, value)
+    else
+      _ -> value
+    end
+  end
+
+  defp do_cast_type(:date, string) when is_binary(string) do
+    Date.from_iso8601!(string)
+  end
+
+  defp do_cast_type(_type, value), do: value
 
   @doc since: "0.2.0"
   def compare(a, b, query) when is_list(a) and is_list(b) do
