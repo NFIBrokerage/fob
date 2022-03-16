@@ -63,8 +63,27 @@ defmodule Fob.PageBreak do
     end
   end
 
-  defp do_cast_type(:date, string) when is_binary(string) do
-    Date.from_iso8601!(string)
+  @iso_8601_modules %{
+    :date => Date,
+    :time => Time,
+    :naive_datetime => NaiveDateTime,
+    :naive_datetime_usec => NaiveDateTime,
+    :utc_datetime => DateTime,
+    :utc_datetime_usec => DateTime
+  }
+
+  for {type, module} <- @iso_8601_modules do
+    defp do_cast_type(unquote(type), string) when is_binary(string) do
+      case unquote(module).from_iso8601(string) do
+        {:ok, casted_value} ->
+          casted_value
+
+        # chaps-ignore-start
+        _ ->
+          string
+          # chaps-ignore-stop
+      end
+    end
   end
 
   defp do_cast_type(_type, value), do: value
