@@ -56,7 +56,7 @@ above assumptions.
 ```elixir
 def deps do
   [
-    {:fob, "~> 0.5"}
+    {:fob, "~> 1.0"}
   ]
 end
 ```
