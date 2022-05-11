@@ -16,12 +16,17 @@ defmodule Fob.Cursor do
           query: Ecto.Query.t(),
           repo: Ecto.Repo.t(),
           page_size: pos_integer(),
-          page_breaks: Fob.page_breaks()
+          page_breaks: [Fob.PageBreak.t()]
         }
 
   defstruct [:query, :repo, :page_size, :page_breaks]
 
-  @spec new(Ecto.Queryable.t(), Ecto.Repo.t(), Fob.page_breaks(), pos_integer()) ::
+  @spec new(
+          Ecto.Queryable.t(),
+          Ecto.Repo.t(),
+          [Fob.PageBreak.t()],
+          pos_integer()
+        ) ::
           t()
   def new(queryable, repo, page_breaks, page_size)
       when is_integer(page_size) and page_size > 0 do

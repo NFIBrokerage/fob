@@ -1,18 +1,17 @@
 defmodule Fob.NillableTest do
   use Fob.RepoCase
 
-  @moduledoc """
-  A test case for ensuring that nils don't break pagination
+  @moduledoc false
+  # A test case for ensuring that nils don't break pagination
 
-  This is a common gripe for keyset pagination and is mostly a problem from
-  a SQL comparison perspective: `f.foo > nil` doesn't really work as you might
-  expect. To remedy this, we used to test equality with `is_nil/1` and do comparisons
-  against the postgres-specific `fragment("'-infinity'")` and
-  `fragment("'infinity'")` (depending on the direction of the sort of the
-  column). However, this doesn't work for numerics in even modern versions of
-  postgres. Instead we optimize to checking `is_nil(column) == false`, which
-  works out to effectively be the same check.
-  """
+  # This is a common gripe for keyset pagination and is mostly a problem from
+  # a SQL comparison perspective: `f.foo > nil` doesn't really work as you might
+  # expect. To remedy this, we used to test equality with `is_nil/1` and do comparisons
+  # against the postgres-specific `fragment("'-infinity'")` and
+  # `fragment("'infinity'")` (depending on the direction of the sort of the
+  # column). However, this doesn't work for numerics in even modern versions of
+  # postgres. Instead we optimize to checking `is_nil(column) == false`, which
+  # works out to effectively be the same check.
 
   alias Fob.Cursor
   alias Ecto.Multi

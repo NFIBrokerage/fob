@@ -1,10 +1,9 @@
 defmodule Fob.TieBreakerTest do
   use Fob.RepoCase
 
-  @moduledoc """
-  Tests that records which have ties in sortable keys have those ties correctly
-  broken by keyset pagination
-  """
+  @moduledoc false
+  # Tests that records which have ties in sortable keys have those ties correctly
+  # broken by keyset pagination
 
   alias Fob.Cursor
   alias Ecto.Multi

@@ -1,14 +1,14 @@
 defmodule Fob.PageBreakComparisonTest do
   use Fob.RepoCase
 
-  @moduledoc """
-  Tests that the Fob.PageBreak.compare/2 function works as expected and respects
-  nils
+  @moduledoc false
 
-  Also tests the expand_space/4 function to ensure that it properly expands
-  the bounds of a page-break space.
-  """
-  @moduledoc since: "0.2.0"
+  # Tests that the Fob.PageBreak.compare/2 function works as expected and respects
+  # nils
+
+  # Also tests the expand_space/4 function to ensure that it properly expands
+  # the bounds of a page-break space.
+  # @moduledoc since: "0.2.0"
 
   alias Ecto.Multi
   alias Fob.PageBreak

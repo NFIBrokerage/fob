@@ -1,8 +1,7 @@
 defmodule ChooseFieldSchema do
-  @moduledoc """
-  This schema is meant to test the casting of page break values
-  when ordering by a fragment
-  """
+  @moduledoc false
+  # This schema is meant to test the casting of page break values
+  # when ordering by a fragment
 
   use Ecto.Schema
 

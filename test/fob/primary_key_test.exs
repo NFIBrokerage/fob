@@ -1,9 +1,9 @@
 defmodule Fob.PrimaryKeyTest do
   use Fob.RepoCase
 
-  @moduledoc """
-  Tests basic functionality where a query is only sorted on the primary key
-  """
+  @moduledoc false
+
+  # Tests basic functionality where a query is only sorted on the primary key
 
   alias Fob.Cursor
   alias Ecto.Multi

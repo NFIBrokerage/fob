@@ -1,10 +1,10 @@
 defmodule Fob.PageBreak do
-  @moduledoc false
+  @moduledoc """
+  A data structure for describing where in a dataset we have drawn a page
+  line
+  """
 
   alias Fob.Ordering
-
-  # a data structure for describing where in a dataset we have drawn a page
-  # line
 
   @ascending ~w[asc asc_nulls_first asc_nulls_last]a
 

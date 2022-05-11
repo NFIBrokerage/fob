@@ -1,11 +1,12 @@
 defmodule Fob.BetweenBoundsTest do
   use Fob.RepoCase
 
-  @moduledoc """
-  Tests that the Fob.between_bounds/3 function works as expected and respects
-  nils
-  """
-  @moduledoc since: "0.2.0"
+  @moduledoc false
+
+  # Tests that the Fob.between_bounds/3 function works as expected and respects
+  # nils
+
+  # @moduledoc since: "0.2.0"
 
   alias Ecto.Multi
   import Fob, only: [between_bounds: 3, page_breaks: 2]

@@ -1,7 +1,6 @@
 defmodule NillableSchema do
-  @moduledoc """
-  A schema with a field with nil values
-  """
+  @moduledoc false
+  # A schema with a field with nil values
 
   use Ecto.Schema
 

@@ -1,7 +1,6 @@
 defmodule SimplePrimaryKeySchema do
-  @moduledoc """
-  A simple schema with only an incrementing integer primary key
-  """
+  @moduledoc false
+  # A simple schema with only an incrementing integer primary key
 
   use Ecto.Schema
 

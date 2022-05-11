@@ -1,7 +1,6 @@
 defmodule TrunkSchema do
-  @moduledoc """
-  A trunk schema onto which other records will be joined
-  """
+  @moduledoc false
+  # A trunk schema onto which other records will be joined
 
   use Ecto.Schema
 
@@ -12,9 +11,8 @@ defmodule TrunkSchema do
 end
 
 defmodule ChildSchema do
-  @moduledoc """
-  A schema which will be joined onto the trunk
-  """
+  @moduledoc false
+  # A schema which will be joined onto the trunk
 
   use Ecto.Schema
 

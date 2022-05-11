@@ -1,9 +1,9 @@
 defmodule Fob.ComplexOrderByTest do
   use Fob.RepoCase
 
-  @moduledoc """
-  Tests functionality where a query is sorted by a complex fragment
-  """
+  @moduledoc false
+
+  # Tests functionality where a query is sorted by a complex fragment
 
   alias Fob.Cursor
   alias Ecto.Multi

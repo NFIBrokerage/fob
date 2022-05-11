@@ -1,7 +1,6 @@
 defmodule TieBreakerSchema do
-  @moduledoc """
-  A schema in which records will share values with one another
-  """
+  @moduledoc false
+  # A schema in which records will share values with one another
 
   use Ecto.Schema
 
