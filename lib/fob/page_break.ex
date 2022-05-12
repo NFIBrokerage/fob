@@ -1,7 +1,6 @@
 defmodule Fob.PageBreak do
   @moduledoc """
-  A data structure for describing where in a dataset we have drawn a page
-  line
+  Functions and types for operating on page break values
   """
 
   alias Fob.Ordering
@@ -12,10 +11,14 @@ defmodule Fob.PageBreak do
   # :asc == :asc_nulls_last
   # :desc == :desc_nulls_first
 
+  @typedoc """
+  A data structure for describing a position within an ordered data set
+  """
   @type t :: %__MODULE__{}
 
   defstruct ~w[column value table direction]a
 
+  @doc false
   def add_query_info(nil, _), do: nil
 
   def add_query_info(page_breaks, %Ecto.Query{} = query)
@@ -25,6 +28,7 @@ defmodule Fob.PageBreak do
     Enum.map(page_breaks, &add_query_info(&1, ordering_config, query))
   end
 
+  @doc false
   def add_query_info(
         %{column: column, value: value} = page_break,
         ordering_config,
@@ -41,6 +45,7 @@ defmodule Fob.PageBreak do
     }
   end
 
+  @doc false
   def wrap_to_routeable(page_breaks, %Ecto.Query{} = query)
       when is_list(page_breaks) do
     ordering_config = Ordering.config(query)
@@ -88,7 +93,15 @@ defmodule Fob.PageBreak do
 
   defp do_cast_type(_type, value), do: value
 
+  @doc """
+  Compares two page breaks given the ordering defined in the queryable
+
+  Returns `:eq` if the two page breaks are equal, `:lt` if `a` is would come
+  before `b` in the data set when queried, and `:gt` if `b` would come before
+  `a`.
+  """
   @doc since: "0.2.0"
+  @spec compare([t()], [t()], Ecto.Queryable.t()) :: :lt | :eq | :gt
   def compare(a, b, query) when is_list(a) and is_list(b) do
     compare(add_query_info(a, query), add_query_info(b, query))
   end
@@ -96,6 +109,7 @@ defmodule Fob.PageBreak do
   def compare(nil, _, _), do: :lt
   def compare(_, nil, _), do: :gt
 
+  @doc false
   def compare(a, b)
 
   def compare(a, b) when is_list(a) and is_list(b) and length(a) == length(b) do

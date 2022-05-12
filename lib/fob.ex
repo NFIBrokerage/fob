@@ -1,6 +1,13 @@
 defmodule Fob do
   @moduledoc """
   A keyset pagination library for Ecto queries
+
+  Keyset pagination works by filtering a data set with `Ecto.Query.where/3`s
+  rather than `Ecto.Query.offset/3`.
+
+  Fob requires that any queryables are ordered by a unique column as the last
+  ordering condition. Other non-unique columns may be ordered by as well, but
+  the last `Ecto.Query.order_by/3` must be unique.
   """
 
   alias Fob.{Ordering, PageBreak}
@@ -10,10 +17,17 @@ defmodule Fob do
   @ascending ~w[asc asc_nulls_first asc_nulls_last]a
   @descending ~w[desc desc_nulls_first desc_nulls_last]a
 
+  @doc """
+  Limits an `Ecto.Queryable` to the next page of data
+
+  `page_breaks` are used to add `Ecto.Query.where/3` filters to the query which
+  limit the query to the next page. `page_size` translates to a
+  `Ecto.Query.limit/2`.
+  """
   @doc since: "0.1.0"
   @spec next_page(
           Ecto.Queryable.t(),
-          [PageBreak.t()],
+          [PageBreak.t()] | nil,
           pos_integer() | :infinity
         ) ::
           Ecto.Query.t()
@@ -306,6 +320,18 @@ defmodule Fob do
     dynamic([{t, table}], field(t, ^column) <= ^value)
   end
 
+  @doc """
+  Returns the page breaks for a record
+
+  The query does not need to be limited by `next_page/3` or
+  `between_bounds/3`: the query only needs to have the
+  `Ecto.Query.order_by/3`s used in the query to get the record.
+
+  ## Examples
+
+      iex> records = MyApp.Repo.all(Fob.next_page(query, current_page_breaks, page_size))
+      iex> next_page_breaks = Fob.page_breaks(query, List.last(records))
+  """
   @doc since: "0.1.0"
   @spec page_breaks(Ecto.Queryable.t(), record :: map() | nil) ::
           [PageBreak.t()] | nil
@@ -327,6 +353,9 @@ defmodule Fob do
     end)
   end
 
+  @doc """
+  Limits a queryable to return records between two page break boundaries
+  """
   @doc since: "0.1.0"
   @spec between_bounds(
           Ecto.Queryable.t(),
