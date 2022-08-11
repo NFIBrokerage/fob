@@ -25,7 +25,7 @@ defmodule Fob.ComputedSelectTest do
             s in c.schema,
             select: %{
               id: s.id,
-              computed_column: 1 >= 5
+              computed_column: s.id >= 5
             },
             order_by: [asc: s.id]
           ),
@@ -83,7 +83,7 @@ defmodule Fob.ComputedSelectTest do
           from(t in c.trunk_schema,
             left_join: c in ^child_schema,
             on: t.child == c.id,
-            select: %{t | child_name: c.name, computed: c.id + t.id},
+            select: %{t | child_name: c.name, id_next: t.id + 1},
             order_by: [asc: c.name, desc: t.id]
           ),
           c.repo,
@@ -91,8 +91,10 @@ defmodule Fob.ComputedSelectTest do
           5
         )
 
-      assert {_records, cursor} = Cursor.next(cursor)
-      assert {_records, _cursor} = Cursor.next(cursor)
+      {records, cursor} = Cursor.next(cursor)
+      assert Enum.all?(records, &(&1.id_next == &1.id + 1))
+      {records, _cursor} = Cursor.next(cursor)
+      assert Enum.all?(records, &(&1.id_next == &1.id + 1))
     end
   end
 end

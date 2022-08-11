@@ -7,7 +7,7 @@ defmodule TrunkSchema do
   schema "trunk_schema" do
     field :child, :integer
     field :child_name, :string, virtual: true
-    field :computed, :boolean, virtual: true
+    field :id_next, :integer, virtual: true
   end
 end
 
