@@ -3,7 +3,7 @@ defmodule Fob.ComputedSelectTest do
   alias Fob.Cursor
   alias Ecto.Multi
 
-  describe "single table" do
+  describe "query with single table" do
     setup do
       [schema: SimplePrimaryKeySchema, repo: Fob.Repo]
     end
@@ -51,17 +51,17 @@ defmodule Fob.ComputedSelectTest do
     end
   end
 
-  describe "left join" do
+  describe "query with left join" do
     setup do
       [repo: Fob.Repo, trunk_schema: TrunkSchema, child_schema: ChildSchema]
     end
 
     setup c do
-      trunk_records = for n <- 1..20, do: %{id: n - 1, child: 20 - n}
+      trunk_records = for n <- 1..10, do: %{id: n - 1, child: 10 - n}
 
       child_records =
-        for n <- 1..20 do
-          %{id: n - 1, name: String.pad_trailing("", n, "a")}
+        for n <- 1..10 do
+          %{id: n - 1, name: String.pad_trailing("", n, "b")}
         end
 
       Multi.new()
@@ -73,8 +73,7 @@ defmodule Fob.ComputedSelectTest do
     end
 
     test """
-         we can sort _ascending_ by a left-joined field,
-         even if renamed in the select clause
+         we can select a computed value with a left-joined field
          """,
          c do
       child_schema = c.child_schema
@@ -92,21 +91,8 @@ defmodule Fob.ComputedSelectTest do
           5
         )
 
-      {records, cursor} = Cursor.next(cursor)
-
-      records
-      |> Enum.with_index(1)
-      |> Enum.each(fn {record, index} ->
-        assert String.length(record.child_name) == index
-      end)
-
-      {records, _cursor} = Cursor.next(cursor)
-
-      records
-      |> Enum.with_index(6)
-      |> Enum.each(fn {record, index} ->
-        assert String.length(record.child_name) == index
-      end)
+      assert {_records, cursor} = Cursor.next(cursor)
+      assert {_records, _cursor} = Cursor.next(cursor)
     end
   end
 end
