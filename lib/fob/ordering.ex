@@ -82,14 +82,14 @@ defmodule Fob.Ordering do
           expr: {:%{}, _, [{:|, _, [{:&, _, [0]}, merges]}]}
         }
       }) do
-    Map.new(merges, fn
-      {toplevel_name, {{:., _, [{:&, _, [table]}, name_in_table]}, _, _}} ->
-        {{table, name_in_table}, toplevel_name}
+    Enum.reduce(merges, %{}, fn
+      {toplevel_name, {{:., _, [{:&, _, [table]}, name_in_table]}, _, _}},
+      acc ->
+        Map.put(acc, {table, name_in_table}, toplevel_name)
 
-      {_toplevel_name, _ast_expr} = expr ->
-        {:merged_computed_column, expr}
+      {_toplevel_name, _ast_expr}, acc ->
+        acc
     end)
-    |> Map.delete(:merged_computed_column)
   end
 
   def selection_mapping(%Query{}), do: %{}
