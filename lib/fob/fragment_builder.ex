@@ -1,11 +1,30 @@
 defmodule Fob.FragmentBuilder do
   @moduledoc false
+  @ugly_hack not (inspect(%Ecto.Query.DynamicExpr{
+                    fun: fn _ ->
+                      {{:fragment, [],
+                        [
+                          raw: "",
+                          expr: {{:., [], [{:&, [], [0]}, :id]}, [], []},
+                          raw: ""
+                        ]}, [], [], []}
+                    end,
+                    binding: [s: {:s, [line: 22], nil}],
+                    file: "compilation",
+                    line: 0
+                  }) =~ "Inspect.Error")
   @spec build([Macro.t()], Macro.t(), Macro.t(), Macro.Env.t()) :: Macro.t()
   def build(binding, expr, params, env) do
     quote do
       %Ecto.Query.DynamicExpr{
         fun: fn query ->
-          {unquote(expr), unquote(params), []}
+          _ = query
+
+          if unquote(@ugly_hack) do
+            {unquote(expr), unquote(params), [], []}
+          else
+            {unquote(expr), unquote(params), []}
+          end
         end,
         binding: unquote(Macro.escape(binding)),
         file: unquote(env.file),
