@@ -1,26 +1,25 @@
 defmodule Fob.FragmentBuilder do
   @moduledoc false
-  @ugly_hack not (inspect(%Ecto.Query.DynamicExpr{
-                    fun: fn _ ->
-                      {{:fragment, [],
-                        [
-                          raw: "",
-                          expr: {{:., [], [{:&, [], [0]}, :id]}, [], []},
-                          raw: ""
-                        ]}, [], [], []}
-                    end,
-                    binding: [s: {:s, [line: 22], nil}],
-                    file: "compilation",
-                    line: 0
-                  }) =~ "Inspect.Error")
+
   @spec build([Macro.t()], Macro.t(), Macro.t(), Macro.Env.t()) :: Macro.t()
   def build(binding, expr, params, env) do
+    is_ecto_greater_than_3_9_1 =
+      case :application.get_key(:ecto, :vsn) do
+        {:ok, version} ->
+          version
+          |> to_string()
+          |> Version.match?(">= 3.9.1")
+
+        _ ->
+          false
+      end
+
     quote do
       %Ecto.Query.DynamicExpr{
         fun: fn query ->
           _ = query
 
-          if unquote(@ugly_hack) do
+          if unquote(is_ecto_greater_than_3_9_1) do
             {unquote(expr), unquote(params), [], []}
           else
             {unquote(expr), unquote(params), []}
