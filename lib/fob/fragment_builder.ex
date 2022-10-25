@@ -1,11 +1,29 @@
 defmodule Fob.FragmentBuilder do
   @moduledoc false
+
   @spec build([Macro.t()], Macro.t(), Macro.t(), Macro.Env.t()) :: Macro.t()
   def build(binding, expr, params, env) do
+    is_ecto_greater_than_3_9_1 =
+      case :application.get_key(:ecto, :vsn) do
+        {:ok, version} ->
+          version
+          |> to_string()
+          |> Version.match?(">= 3.9.1")
+
+        _ ->
+          false
+      end
+
     quote do
       %Ecto.Query.DynamicExpr{
         fun: fn query ->
-          {unquote(expr), unquote(params), []}
+          _ = query
+
+          if unquote(is_ecto_greater_than_3_9_1) do
+            {unquote(expr), unquote(params), [], []}
+          else
+            {unquote(expr), unquote(params), []}
+          end
         end,
         binding: unquote(Macro.escape(binding)),
         file: unquote(env.file),
