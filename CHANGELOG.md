@@ -6,11 +6,18 @@ The format is based on [Keep a
 Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.3 - 2022-10-25
+
+### Fixed
+
+- Updated dynamic expression creation to work with Ecto 3.9.1 and retain
+  backwards compatibility.
+
 ## 1.0.2 - 2022-08-11
 
 ### Fixed
 
-- Fixed issues which caused select some expressions to fail when used with join
+- Fixed issues which caused some select expressions to fail when used with join
   queries.
 
 ## 1.0.1 - 2022-05-12
