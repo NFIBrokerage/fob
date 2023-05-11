@@ -53,6 +53,7 @@ defmodule Fob.FragmentCastingTest do
       end)
 
     records = Fob.next_page(c.query, page_breaks, 3) |> c.repo.all()
+
     assert records |> ids() == Enum.slice(expected_ids, 9..11)
   end
 

@@ -52,4 +52,89 @@ defmodule Fob.BetweenBoundsTest do
 
     assert between_bounds(query, start, stop) |> c.repo.all() == records
   end
+
+  test "between_bounds/3 can return a single record when start and stop are equal",
+       c do
+    schema = c.schema
+    query = from t in schema, order_by: [asc_nulls_last: :date, asc: :id]
+
+    [record] =
+      c.repo.all(query)
+      |> Enum.slice(_start_at = 3, _count = 1)
+
+    start = page_breaks(query, record)
+    stop = page_breaks(query, record)
+
+    assert between_bounds(query, start, stop) |> c.repo.all() == [record]
+  end
+
+  test "between_bounds/3 can return a single record when start and stop are equal and naive_datetime",
+       c do
+    schema = c.schema
+
+    query =
+      from t in schema, order_by: [asc_nulls_last: :naive_datetime, asc: :id]
+
+    [record] =
+      c.repo.all(query)
+      |> Enum.slice(_start_at = 3, _count = 1)
+
+    start = page_breaks(query, record)
+    stop = page_breaks(query, record)
+
+    assert between_bounds(query, start, stop) |> c.repo.all() == [record]
+  end
+
+  test "between_bounds/3 can return a single record when start and stop are equal and naive_datetime_usec",
+       c do
+    schema = c.schema
+
+    query =
+      from t in schema,
+        order_by: [asc_nulls_last: :naive_datetime_usec, asc: :id]
+
+    [record] =
+      c.repo.all(query)
+      |> Enum.slice(_start_at = 3, _count = 1)
+
+    start = page_breaks(query, record)
+    stop = page_breaks(query, record)
+
+    assert between_bounds(query, start, stop) |> c.repo.all() == [record]
+  end
+
+  test "between_bounds/3 can return a single record when start and stop are equal and utc_datetime",
+       c do
+    schema = c.schema
+
+    query =
+      from t in schema, order_by: [asc_nulls_last: :utc_datetime, asc: :id]
+
+    [record] =
+      c.repo.all(query)
+      |> Enum.slice(_start_at = 3, _count = 1)
+
+    start = page_breaks(query, record)
+    stop = page_breaks(query, record)
+
+    assert between_bounds(query, start, stop) |> c.repo.all() == [record]
+  end
+
+  test "between_bounds/3 can return a single record when start and stop are equal and utc_datetime_usec",
+       c do
+    schema = c.schema
+
+    query =
+      from t in schema, order_by: [asc_nulls_last: :utc_datetime_usec, asc: :id]
+
+    [record] =
+      c.repo.all(query)
+      |> Enum.slice(_start_at = 3, _count = 1)
+
+    start = page_breaks(query, record)
+    stop = page_breaks(query, record)
+
+    assert between_bounds(query, start, stop) |> c.repo.all() ==
+             [record]
+  end
 end
