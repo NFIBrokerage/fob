@@ -22,4 +22,23 @@ defmodule Fob.FragmentBuilderTest do
 
     assert %Ecto.Query.DynamicExpr{} = dyn
   end
+
+  test "fragement builder builds captures columns" do
+    query =
+      from(
+        s in "schema",
+        as: :s,
+        left_join: s2 in "schema_2",
+        as: :s2,
+        select: %{
+          virtual_column: fragment("(? % ? % ?)", s.id, s.next, s2.other)
+        },
+        order_by: [asc: fragment("(? % ? % ?)", s.id, s.next, s2.other)]
+      )
+
+    %{expr: [{_direction, frag}]} = hd(query.order_bys)
+
+    columns = frag |> Fob.FragmentBuilder.columns_for_fragment() |> MapSet.new()
+    assert MapSet.equal?(MapSet.new([:id, :next]), columns)
+  end
 end

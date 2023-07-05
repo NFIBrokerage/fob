@@ -65,4 +65,19 @@ defmodule Fob.FragmentBuilder do
     end)
     |> elem(1)
   end
+
+  def columns_for_fragment({:fragment, [], _} = frag) do
+    Macro.prewalk(frag, [], fn ast, acc ->
+      case ast do
+        # all "columns" access with a `.`, I think this will be just the
+        # primary table in the query from the `[0]`
+        {:., [], [{:&, [], [0]}, column]} when is_atom(column) ->
+          {ast, [column | acc]}
+
+        _ ->
+          {ast, acc}
+      end
+    end)
+    |> elem(1)
+  end
 end
