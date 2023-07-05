@@ -15,10 +15,12 @@ defmodule Fob.Ordering do
           table: table(),
           column: atom(),
           direction: :asc | :desc,
-          maybe_expression: nil | expr()
+          maybe_expression: nil | expr(),
+          dependent_columns: list(atom())
         }
 
-  defstruct ~w[table column direction maybe_expression]a
+  defstruct ~w[table column direction maybe_expression]a ++
+              [dependent_columns: []]
 
   @spec config(%Query{}) :: [t()]
   def config(%Query{order_bys: orderings} = query) do
@@ -39,7 +41,8 @@ defmodule Fob.Ordering do
       direction: direction,
       column: column,
       table: table,
-      maybe_expression: nil
+      maybe_expression: nil,
+      dependent_columns: [column]
     }
   end
 
@@ -57,19 +60,34 @@ defmodule Fob.Ordering do
         frag
       )
 
+    dependent_columns = Fob.FragmentBuilder.columns_for_fragment(frag)
+
     %__MODULE__{
       direction: direction,
       column: column,
       table: table,
-      maybe_expression: dyn_expression
+      maybe_expression: dyn_expression,
+      dependent_columns: dependent_columns
     }
   end
 
+  # chaps-ignore-start
+  @deprecated "Use dependent_columns/1 instead"
   @spec columns(%Query{}) :: [{table(), atom(), any()}]
   def columns(%Query{} = query) do
     query
     |> config()
     |> Enum.map(&{&1.table, &1.column})
+    |> Enum.uniq()
+  end
+
+  # chaps-ignore-stop
+
+  @spec dependent_columns(%Query{}) :: [{table(), atom(), any(), list(any())}]
+  def dependent_columns(%Query{} = query) do
+    query
+    |> config()
+    |> Enum.map(&{&1.table, &1.column, &1.dependent_columns})
     |> Enum.uniq()
   end
 

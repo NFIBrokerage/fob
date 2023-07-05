@@ -342,13 +342,14 @@ defmodule Fob do
     selection_mapping = Ordering.selection_mapping(query)
 
     query
-    |> Ordering.columns()
-    |> Enum.map(fn {table, name} ->
+    |> Ordering.dependent_columns()
+    |> Enum.map(fn {table, name, dependent_columns} ->
       key = Map.get(selection_mapping, {table, name}, name)
 
       %PageBreak{
         column: name,
-        value: get_in(record, [Access.key(key)])
+        value: get_in(record, [Access.key(key)]),
+        dependent_columns: dependent_columns
       }
     end)
   end
