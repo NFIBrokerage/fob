@@ -41,4 +41,23 @@ defmodule Fob.FragmentBuilderTest do
     columns = frag |> Fob.FragmentBuilder.columns_for_fragment() |> MapSet.new()
     assert MapSet.equal?(MapSet.new([:id, :next]), columns)
   end
+
+  test "fragement builder builds captures empty columns" do
+    query =
+      from(
+        s in "schema",
+        as: :s,
+        left_join: s2 in "schema_2",
+        as: :s2,
+        select: %{
+          virtual_column: fragment("(5)")
+        },
+        order_by: [asc: fragment("(5)")]
+      )
+
+    %{expr: [{_direction, frag}]} = hd(query.order_bys)
+
+    columns = frag |> Fob.FragmentBuilder.columns_for_fragment() |> MapSet.new()
+    assert MapSet.equal?(MapSet.new(), columns)
+  end
 end
