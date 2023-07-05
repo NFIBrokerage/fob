@@ -71,6 +71,8 @@ defmodule Fob.Ordering do
     }
   end
 
+  # chaps-ignore-start
+  @deprecated "Use dependent_columns/1 instead"
   @spec columns(%Query{}) :: [{table(), atom(), any()}]
   def columns(%Query{} = query) do
     query
@@ -78,6 +80,8 @@ defmodule Fob.Ordering do
     |> Enum.map(&{&1.table, &1.column})
     |> Enum.uniq()
   end
+
+  # chaps-ignore-stop
 
   @spec dependent_columns(%Query{}) :: [{table(), atom(), any(), list(any())}]
   def dependent_columns(%Query{} = query) do
