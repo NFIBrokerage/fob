@@ -16,7 +16,7 @@ defmodule Fob.PageBreak do
   """
   @type t :: %__MODULE__{}
 
-  defstruct ~w[column value table direction]a
+  defstruct ~w[column value table direction]a ++ [dependent_columns: []]
 
   @doc false
   def add_query_info(nil, _), do: nil
@@ -41,7 +41,8 @@ defmodule Fob.PageBreak do
       page_break
       | table: order.table,
         direction: order.direction,
-        value: casted_value
+        value: casted_value,
+        dependent_columns: order.dependent_columns
     }
   end
 

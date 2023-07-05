@@ -15,10 +15,12 @@ defmodule Fob.Ordering do
           table: table(),
           column: atom(),
           direction: :asc | :desc,
-          maybe_expression: nil | expr()
+          maybe_expression: nil | expr(),
+          dependent_columns: list(atom())
         }
 
-  defstruct ~w[table column direction maybe_expression]a
+  defstruct ~w[table column direction maybe_expression]a ++
+              [dependent_columns: []]
 
   @spec config(%Query{}) :: [t()]
   def config(%Query{order_bys: orderings} = query) do
@@ -57,11 +59,14 @@ defmodule Fob.Ordering do
         frag
       )
 
+    dependent_columns = Fob.FragmentBuilder.columns_for_fragment(frag)
+
     %__MODULE__{
       direction: direction,
       column: column,
       table: table,
-      maybe_expression: dyn_expression
+      maybe_expression: dyn_expression,
+      dependent_columns: dependent_columns
     }
   end
 
