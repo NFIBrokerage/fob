@@ -41,7 +41,8 @@ defmodule Fob.Ordering do
       direction: direction,
       column: column,
       table: table,
-      maybe_expression: nil
+      maybe_expression: nil,
+      dependent_columns: [column]
     }
   end
 
@@ -75,6 +76,14 @@ defmodule Fob.Ordering do
     query
     |> config()
     |> Enum.map(&{&1.table, &1.column})
+    |> Enum.uniq()
+  end
+
+  @spec dependent_columns(%Query{}) :: [{table(), atom(), any(), list(any())}]
+  def dependent_columns(%Query{} = query) do
+    query
+    |> config()
+    |> Enum.map(&{&1.table, &1.column, &1.dependent_columns})
     |> Enum.uniq()
   end
 
