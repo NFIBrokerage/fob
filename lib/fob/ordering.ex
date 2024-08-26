@@ -24,7 +24,7 @@ defmodule Fob.Ordering do
 
   @spec config(%Query{}) :: [t()]
   def config(%Query{order_bys: orderings} = query) do
-    Enum.flat_map(orderings, fn %Query.QueryExpr{expr: exprs} ->
+    Enum.flat_map(orderings, fn %{expr: exprs} ->
       config_from_ordering_expressions(exprs, query)
     end)
   end
