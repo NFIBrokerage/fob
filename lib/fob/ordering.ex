@@ -22,7 +22,7 @@ defmodule Fob.Ordering do
   defstruct ~w[table column direction maybe_expression]a ++
               [dependent_columns: []]
 
-  @spec config(%Query{}) :: [t()]
+  @spec config(Query.t()) :: [t()]
   def config(%Query{order_bys: orderings} = query) do
     Enum.flat_map(orderings, fn %expr_struct{expr: exprs}
                                 when expr_struct in [
@@ -77,7 +77,7 @@ defmodule Fob.Ordering do
 
   # chaps-ignore-start
   @deprecated "Use dependent_columns/1 instead"
-  @spec columns(%Query{}) :: [{table(), atom(), any()}]
+  @spec columns(Query.t()) :: [{table(), atom(), any()}]
   def columns(%Query{} = query) do
     query
     |> config()
@@ -87,7 +87,7 @@ defmodule Fob.Ordering do
 
   # chaps-ignore-stop
 
-  @spec dependent_columns(%Query{}) :: [{table(), atom(), any(), list(any())}]
+  @spec dependent_columns(Query.t()) :: [{table(), atom(), any(), list(any())}]
   def dependent_columns(%Query{} = query) do
     query
     |> config()
@@ -98,7 +98,7 @@ defmodule Fob.Ordering do
   # this mapping can help translate between the columns returned by config/1
   # into what will be on the records, so it's useful for fetching values for
   # page breaks
-  @spec selection_mapping(%Query{}) :: %{{table(), atom()} => atom()}
+  @spec selection_mapping(Query.t()) :: %{{table(), atom()} => atom()}
   def selection_mapping(%Query{
         select: %Query.SelectExpr{
           expr: {:%{}, _, [{:|, _, [{:&, _, [0]}, merges]}]}

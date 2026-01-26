@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :fob, Fob.Repo,
   database: "fob_test",

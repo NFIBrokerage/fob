@@ -1,4 +1,9 @@
-use Mix.Config
+import Config
+
+config :chaps,
+  coverage_options: [
+    minimum_coverage: 91.5
+  ]
 
 config :fob, Fob.Repo,
   database: "fob_test",
